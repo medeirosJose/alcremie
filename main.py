@@ -31,7 +31,7 @@ class Main(tk.Tk):
         )
         self.user_controller = self.app_controller.get_user_controller()
 
-    #! Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
+        #! Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
         self.views = {
             "Pedido": (OrderView, self.app_controller.get_order_controller()),
             "Produtos": (ProductsView, self.app_controller.get_products_controller()),
