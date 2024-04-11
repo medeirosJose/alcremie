@@ -1,16 +1,10 @@
-class User:
-    def __init__(self, name, email):
-        self.name = name
-        self.email = email
-
-
 class Order:
     def __init__(self, order_id, client, products, delivery_date):
         self.order_id = order_id
         self.client = client
         self.products = products
         self.delivery_date = delivery_date
-        self.payment_status = "Pendente"  # Valor padrão, ajuste conforme necessário
+        self.payment_status = "Pendente"
         self.observation = ""
         self.total_order_price = 0
 

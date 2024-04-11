@@ -1,13 +1,9 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-from order_view import OrderView
-from products_view import ProductsView
-from customer_view import CustomersView
-from controllers import (
-    UserController,
-    OrderController,
-    ProductsController,
-    CustomerController,
+from views.order_view import OrderView
+from views.products_view import ProductsView
+from views.customer_view import CustomersView
+from controllers.app_controller import (
     AppController,
 )
 
@@ -35,7 +31,7 @@ class Main(tk.Tk):
         )
         self.user_controller = self.app_controller.get_user_controller()
 
-        # Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
+    #! Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
         self.views = {
             "Pedido": (OrderView, self.app_controller.get_order_controller()),
             "Produtos": (ProductsView, self.app_controller.get_products_controller()),
