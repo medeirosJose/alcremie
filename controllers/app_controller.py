@@ -1,6 +1,6 @@
 from controllers.customer_controller import CustomerController
 from controllers.order_controller import OrderController
-from controllers.products_controller import ProductsController
+from controllers.product_controller import ProductController
 from controllers.user_controller import UserController
 
 
@@ -13,7 +13,7 @@ class AppController:
             # Inicialização dos controladores específicos
             cls.user_controller = UserController(cls)
             cls.order_controller = OrderController(cls)
-            cls.products_controller = ProductsController(cls)
+            cls.product_controller = ProductController(cls)
             cls.customer_controller = CustomerController(cls)
         return cls._instance
 
@@ -30,8 +30,8 @@ class AppController:
     def get_order_controller(self):
         return self.order_controller
 
-    def get_products_controller(self):
-        return self.products_controller
+    def get_product_controller(self):
+        return self.product_controller
 
     def get_customer_controller(self):
         return self.customer_controller

@@ -5,7 +5,6 @@ from views.product_view import ProductView
 class ProductController:
     def __init__(self, system_controller):
         self.__products = []
-        self.__product_screen = ProductView()
         self.__system_controller = system_controller
 
     def add_product(self):
