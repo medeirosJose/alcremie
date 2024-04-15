@@ -94,15 +94,19 @@ class NewProductPopup:
         )
         self.recipe_input.grid(row=5, column=1, sticky="ew", pady=5, padx=5)
         if product:
-            ingredients = ""
-            for ingredient in product.get_ingredients():
-                ingredients += ingredient + ", "
+            list_of_ingredients = product.get_ingredients()
+            ingredients_string = ""
+            for pos, ingredient in enumerate(list_of_ingredients):
+                if pos != (len(list_of_ingredients)-1):
+                    ingredients_string += ingredient + ", "
+                else:
+                    ingredients_string += ingredient
             self.name_input.insert(0, product.name)
             self.price_input.insert(0, product.price)
             self.description_input.insert(0, product.description)
             self.weight_input.insert(0, product.weight)
             self.recipe_input.insert(0, product.recipe)
-            self.ingredients_input.insert(0, ingredients)
+            self.ingredients_input.insert(0, ingredients_string)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -188,13 +192,13 @@ class ProductView(tk.Frame):
         )
         self.remove_product_button.pack(side=tk.LEFT, padx=5)
 
-        # # Ver detalhes do produto
-        # self.view_details_button = tk.Button(
-        #     buttons_frame,
-        #     text="Ver detalhes do produto",
-        #     command=self.refresh_product_details,
-        # )
-        # self.view_details_button.pack(side=tk.LEFT, padx=5)
+        # Ver detalhes do produto
+        self.view_details_button = tk.Button(
+            buttons_frame,
+            text="Ver detalhes do produto",
+            command=self.refresh_product_details,
+        )
+        self.view_details_button.pack(side=tk.LEFT, padx=5)
 
         # Frame para detalhes do produto
         self.details_frame = tk.Frame(self, borderwidth=2, relief="groove", height=200)
@@ -292,3 +296,90 @@ class ProductView(tk.Frame):
                     product.description,
                 ),
             )
+
+    def refresh_product_details(self):
+        for widget in self.details_frame.winfo_children():
+            widget.destroy()
+
+        selected_items = self.products_table.selection()
+        if not selected_items:
+            messagebox.showwarning("Aviso", "Selecione um produto.")
+            return
+        else:
+            selected_item = selected_items[0]  # Primeiro item selecionado
+            product_details = self.products_table.item(selected_item, "values")
+            product_id = int(product_details[0])  # ID do pedido
+
+            product = self.controller.get_product_details(product_id)
+
+            if product:
+                # Frames para cada seção
+                name_frame = tk.Frame(self.details_frame)
+                name_frame.pack(fill=tk.X, pady=2)
+                price_frame = tk.Frame(self.details_frame)
+                price_frame.pack(fill=tk.X, pady=2)
+                description_frame = tk.Frame(self.details_frame)
+                description_frame.pack(fill=tk.X, pady=2)
+                weight_frame = tk.Frame(self.details_frame)
+                weight_frame.pack(fill=tk.X, pady=2)
+                recipe_frame = tk.Frame(self.details_frame)
+                recipe_frame.pack(fill=tk.X, pady=2)
+                ingredients_frame = tk.Frame(self.details_frame)
+                ingredients_frame.pack(fill=tk.X, pady=2)
+
+                # Nome
+                tk.Label(
+                    name_frame, text="Nome:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(name_frame, text=f"{product.name}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # Preço
+                tk.Label(
+                    price_frame,
+                    text="Preço:",
+                    font=("Arial", 10, "bold"),
+                ).pack(side=tk.LEFT)
+                tk.Label(price_frame, text=f"{product.price}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # Descrição
+                tk.Label(
+                    description_frame, text="Descrição:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(description_frame, text=f"{product.description}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # Peso
+                tk.Label(
+                    weight_frame, text="Peso:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(weight_frame, text=f"{product.weight}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # Receita
+                tk.Label(
+                    recipe_frame, text="Receita:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(recipe_frame, text=f"{product.recipe}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # Ingredientes
+                list_of_ingredients = product.get_ingredients()
+                ingredients_string = ""
+                for pos, ingredient in enumerate(list_of_ingredients):
+                    if pos != (len(list_of_ingredients) - 1):
+                        ingredients_string += ingredient + ", "
+                    else:
+                        ingredients_string += ingredient
+                tk.Label(
+                    ingredients_frame, text="Ingredientes:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(ingredients_frame, text=f"{ingredients_string}").pack(
+                    side=tk.LEFT, padx=5
+                )

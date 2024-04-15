@@ -11,7 +11,7 @@ class ProductController:
     def create_new_product(self, name: str, price: float, description: str, weight: float, ingredients, recipe: str,):
         products = self.get_products()
         if products:
-            new_id = int(max(product.id for product in self.products) + 1)
+            new_id = int(max(product.id for product in products) + 1)
         else:
             new_id = int(1)
         new_product = Product(
@@ -56,7 +56,7 @@ class ProductController:
         for product in products:
             if product.id == product_id:
                 return product
-        return None
+
 
     # def return_to_controller(self):
     #     self.__system_controller.open_view()
