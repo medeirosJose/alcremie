@@ -1,11 +1,20 @@
 class Product:
-    def __init__(self, id: int, name: str, price: float, description: str, measure: str, ingredients=None):
+    def __init__(self, id: int, name: str, price: float, description: str, weight: float, recipe: str, ingredients=None):
         self.__id = id
         self.__name = name
         self.__price = price
         self.__description = description
-        self.__measure = measure
+        self.__weight = weight
         self.__ingredients = ingredients or []
+        self.__recipe = recipe
+
+    @property
+    def id(self):
+        return self.__id
+
+    @id.setter
+    def id(self, id: str):
+        self.__id = id
 
     @property
     def name(self):
@@ -32,13 +41,20 @@ class Product:
         self.__description = description
 
     @property
-    def measure(self):
-        return self.__measure
+    def weight(self):
+        return self.__weight
 
-    @measure.setter
-    def measure(self, measure: str):
-        self.__measure = measure
+    @weight.setter
+    def weight(self, weight: str):
+        self.__weight = weight
 
+    @property
+    def recipe(self):
+        return self.__recipe
+
+    @recipe.setter
+    def recipe(self, recipe: str):
+        self.__recipe = recipe
 
     def get_ingredients(self):
         return self.__ingredients
