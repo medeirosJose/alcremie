@@ -14,9 +14,8 @@ class Order:
     def remove_product(self, product):
         self.products.remove(product)
 
-
     # def get_total(self):
     #    return sum(product.price for product in self.products)
 
     def __str__(self):
-        return f"Pedido {self.order_id} - Cliente: {self.client}"
+        return f"Pedido {self.order_id} - Cliente: {self.client}, Produtos: {self.products}, Data de Entrega: {self.delivery_date}"

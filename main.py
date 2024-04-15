@@ -12,23 +12,26 @@ class Main(tk.Tk):
     def __init__(self, app_controller):
         super().__init__()
         self.title("Confeitaria Alcremie")
-        self.state("zoomed")
+        self.state("zoomed")  # garante que a janela inicie maximizada
 
+        # cria a barra lateral
         self.sidebar = tk.Frame(self, width=400, bg="gray")
         self.sidebar.pack(fill="y", side="left")
 
+        # cria o container para as views
         self.container = tk.Frame(self)
         self.container.pack(fill="both", expand=True)
 
+        # cria a imagem de logo
         image = Image.open("logo.png")
         photo = ImageTk.PhotoImage(image)
         label = tk.Label(self.container, image=photo)
         label.image = photo
-        label.place(x=600, y=200)
+        # centraliza a imagem no centro da view do container
+        label.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.app_controller = (
-            app_controller  # Armazena app_controller para uso posterior
-        )
+        # cria o controller principal (singleton)
+        self.app_controller = app_controller
         self.user_controller = self.app_controller.get_user_controller()
 
         #! Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
@@ -41,6 +44,7 @@ class Main(tk.Tk):
         self.current_view = None
         self.create_sidebar_buttons()
 
+    # funcao que cria os botoes da barra lateral e associa a visualizacao correspondente
     def create_sidebar_buttons(self):
         for view_name in self.views:
             button = tk.Button(
@@ -51,17 +55,16 @@ class Main(tk.Tk):
             )
             button.pack(padx=40, ipadx=50, ipady=5, pady=8)
 
+    # funcao que exibe a visualizacao clicada
     def show_view(self, view_name):
-        # Verifica se já existe uma visualização atual
         if self.current_view:
-            # Se houver, destroi a visualização atual
+            # se houver, destroi a visualização atual
             self.current_view[0].destroy()
 
-        view_class, controller = self.views[
-            view_name
-        ]  # controller já é instância, não classe
+        # recupera a classe e o controlador da visualização selecionada
+        view_class, controller = self.views[view_name]
 
-        # Instancia a visualização selecionada, passando o container e o controlador
+        # instancia a view selecionada, passando o container e o controlador
         view = view_class(self.container, controller)
 
         view.pack(fill="both", expand=True)

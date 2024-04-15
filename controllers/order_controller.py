@@ -1,23 +1,30 @@
 from models.order import Order
 import random
+from DAO.order_dao import OrderDAO
 
 
 class OrderController:
     def __init__(self, app_controller):
         self.app_controller = app_controller
         self.orders = []
-        self.next_order_id = 1
+        self.order_dao = OrderDAO()
+        self.load_orders()
 
+    # carrega os pedidos do DAO para a execucao atual
+    def load_orders(self):
+        self.orders = list(self.order_dao.get_all())
+
+    # gera um ID unico para um novo pedido e checa se ja existe
     def generate_id(self):
         while True:
             new_id = random.randint(
                 42000000,
                 42999999,  # defini que todos os pedidos começam com id 42 só pq sim kkkk
             )
-            if all(new_id != order.order_id for order in self.orders):
+            if not self.order_dao.get(new_id):
                 return new_id
 
-    # adaptar depois quando tivermos o crud de clientes
+    # TODO adaptar depois quando tivermos o crud de clientes
     def get_clients_list(self):
         return [
             "José Eduardo Medeiros Jochem",
@@ -26,7 +33,7 @@ class OrderController:
             "Fabiane Barreto Vavassori Benitti",
         ]
 
-    # adaptar depois quando tivermos o crud de produtos
+    # TODO adaptar depois quando tivermos o crud de produtos
     def get_products_list(self):
         return [
             "Bolo de Chocolate",
@@ -41,6 +48,7 @@ class OrderController:
             "Cookies de Chocolate",
         ]
 
+    # cria um novo pedido e adiciona ao DAO
     def create_new_order(self, client, products, delivery_date):
         new_id = self.generate_id()
         new_order = Order(
@@ -49,18 +57,21 @@ class OrderController:
             products=products,
             delivery_date=delivery_date,
         )
-        self.orders.append(new_order)
-        print(f"Pedido {new_id} criado com sucesso!")
+        self.order_dao.add(new_order)
+        self.load_orders()
+        print(f"C - Pedido com ID {new_id} criado com sucesso!")
 
+    # remove um pedido do DAO com base no ID unico
     def remove_order(self, order_id):
         order_id = int(order_id)
-        for index, order in enumerate(self.orders):
-            if order.order_id == order_id:
-                del self.orders[index]
-                print(f"Pedido {order_id} removido com sucesso!")
-                return
-        print(f"Pedido com ID {order_id} não encontrado.")
+        if self.order_dao.get(order_id):
+            self.order_dao.remove(order_id)
+            self.load_orders()
+            print(f"C - Pedido com ID {order_id} removido com sucesso!")
+            return
+        print(f"C - Pedido com ID {order_id} não encontrado.")
 
+    # atualiza um pedido no DAO e atualiza a lista de pedidos
     def update_order(self, order_id, client, products, delivery_date):
         order = next(
             (order for order in self.orders if order.order_id == order_id), None
@@ -69,13 +80,18 @@ class OrderController:
             order.client = client
             order.products = products
             order.delivery_date = delivery_date
-            print(f"Pedido {order_id} atualizado com sucesso!")
+            self.order_dao.update(order)
+            self.load_orders()
+            print(f"C - Pedido {order_id} atualizado com sucesso!")
+        else:
+            print(f"C - Pedido com ID {order_id} não encontrado.")
+
+    # retorna todas as informacoes de um pedido com base no ID
+    def get_order_details(self, order_id):
+        return self.order_dao.get(order_id)
 
     def get_all_orders(self):
-        return self.orders
+        return self.order_dao.get_all()
 
-    def get_order_details(self, order_id):
-        return next(
-            (order for order in self.orders if str(order.order_id) == str(order_id)),
-            None,
-        )
+    def refresh_orders_from_dao(self):
+        self.orders = list(self.order_dao.get_all())

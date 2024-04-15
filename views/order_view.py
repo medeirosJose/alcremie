@@ -6,6 +6,9 @@ from datetime import datetime
 
 
 # https://www.youtube.com/watch?v=0CXQ3bbBLVk
+
+
+# popup para criar um novo pedido
 class NewOrderPopup(tk.Toplevel):
     def __init__(self, parent, controller, order=None):
         super().__init__(parent)
@@ -19,6 +22,7 @@ class NewOrderPopup(tk.Toplevel):
         center_x = int(screen_width / 2 - window_width / 2)
         center_y = int(screen_height / 2 - window_height / 2) - 30
 
+        # colocao a janela no centro da tela
         self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
         self.title("Pedido" if not order else f"Editar Pedido: {order.order_id}")
@@ -87,7 +91,7 @@ class NewOrderPopup(tk.Toplevel):
         )
         add_product_button.pack(pady=10)
 
-        # Label e Listbox para itens do pedido
+        # Listbox para itens do pedido
         ttk.Label(bottom_frame, text="Itens do Pedido:", style="TLabel").pack(
             anchor="w", padx=10
         )
@@ -108,6 +112,7 @@ class NewOrderPopup(tk.Toplevel):
         )
         confirm_button.pack(pady=10)
 
+        # preenche os campos com os dados do pedido a ser editado
         if order:
             self.client_combobox.set(order.client)
             self.delivery_date_entry.set_date(
@@ -119,6 +124,7 @@ class NewOrderPopup(tk.Toplevel):
                     tk.END, f"{product} - Quantidade: {quantity}"
                 )
 
+    # funcao que filtra os produtos de acordo com o texto digitado
     def on_search(self, event=None):
         search_text = self.search_var.get().lower()
         matching_products = [
@@ -130,6 +136,7 @@ class NewOrderPopup(tk.Toplevel):
         for product in matching_products:
             self.products_listbox.insert(tk.END, product)
 
+    # adiciona um produto ao pedido
     def add_product_to_order(self):
         product = self.products_listbox.get(self.products_listbox.curselection())
         quantity = self.quantity_entry.get()
@@ -140,17 +147,21 @@ class NewOrderPopup(tk.Toplevel):
             )
             self.quantity_entry.delete(0, tk.END)
 
+    # remove um produto do pedido
     def remove_selected_product(self):
         selected_indices = self.order_items_listbox.curselection()
+        # se nao tiver nenhum selecionado, exibe um aviso
         if not selected_indices:
             messagebox.showwarning("Aviso", "Selecione um produto para remover.")
             return
 
+        # remove os produtos selecionados da lista de itens do pedido
         for index in selected_indices[::-1]:
             del self.order_items[index]
 
         self.order_items_listbox.delete(selected_indices[0])
 
+    # confirma o pedido, fecha a janela e retorna os dados do pedido para o controller
     def confirm_order(self):
         client = self.client_combobox.get()
         delivery_date = self.delivery_date_entry.get_date()
@@ -168,11 +179,11 @@ class NewOrderPopup(tk.Toplevel):
         self.destroy()
 
     def show(self):
-        self.wait_window(self)  # Espera a janela ser destruída
-        # Você pode querer retornar algum valor aqui, por exemplo:
+        self.wait_window(self)
         return self.result
 
 
+# view principal dos pedidos
 class OrderView(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -188,6 +199,7 @@ class OrderView(tk.Frame):
         )
         style.configure("Treeview.Heading", font=("Calibri", 10, "bold"))
 
+        # cria a TreeView para exibir os pedidos com 4 colunas
         self.orders_table = ttk.Treeview(
             self,
             columns=("ID", "Cliente", "Produto", "Data de Entrega"),
@@ -201,37 +213,36 @@ class OrderView(tk.Frame):
             "Data de Entrega", text="Data de Entrega", anchor=tk.CENTER
         )
 
-        self.orders_table.column("ID", width=25, anchor=tk.CENTER)  # Pequeno
-        self.orders_table.column(
-            "Data de Entrega", width=25, anchor=tk.CENTER
-        )  # Pequeno
-        self.orders_table.column("Cliente", width=100)  # Médio
-        self.orders_table.column("Produto", width=400)  # Grande
+        # altera o tamanho das colunas pra ficar mais bonito e organizado
+        self.orders_table.column("ID", width=25, anchor=tk.CENTER)
+        self.orders_table.column("Data de Entrega", width=25, anchor=tk.CENTER)
+        self.orders_table.column("Cliente", width=100)
+        self.orders_table.column("Produto", width=400)
 
         self.orders_table.pack(side="top", fill="both", expand=True, pady=10)
 
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(pady=10, padx=10, fill=tk.X, side=tk.TOP)
 
-        # Criar um novo pedido
+        # criar um novo pedido
         self.create_order_button = tk.Button(
             buttons_frame, text="Criar Novo Pedido", command=self.open_new_order_popup
         )
         self.create_order_button.pack(side=tk.LEFT, padx=5)
 
-        # Editar um pedido existente
+        # editar um pedido existente
         self.edit_order_button = tk.Button(
             buttons_frame, text="Editar Pedido", command=self.edit_order
         )
         self.edit_order_button.pack(side=tk.LEFT, padx=5)
 
-        # Remover um pedido selecionado
+        # remover um pedido selecionado
         self.remove_order_button = tk.Button(
             buttons_frame, text="Remover Pedido", command=self.remove_order
         )
         self.remove_order_button.pack(side=tk.LEFT, padx=5)
 
-        # Botão para ver detalhes do pedido
+        # botão para ver detalhes do pedido
         self.view_details_button = tk.Button(
             buttons_frame,
             text="Ver Detalhes do Pedido",
@@ -239,7 +250,7 @@ class OrderView(tk.Frame):
         )
         self.view_details_button.pack(side=tk.LEFT, padx=5)
 
-        # Frame para detalhes do pedido
+        # frame para detalhes do pedido
         self.details_frame = tk.Frame(self, borderwidth=2, relief="groove", height=200)
         self.details_frame.pack(fill=tk.X, expand=False, pady=5)
         self.details_frame.pack_propagate(False)  # faz o tamanho do frame ficar fixo
@@ -268,29 +279,31 @@ class OrderView(tk.Frame):
 
         self.refresh_orders_list()
 
+    # abre o popup para criar um novo pedido
     def open_new_order_popup(self):
         popup = NewOrderPopup(self, self.controller)
         result = popup.show()
         if result:
-            # Extrai os valores do dicionário result
             client = result["client"]
             delivery_date = result["delivery_date"]
             order_items = result["order_items"]
-            print("1")
+            #  print("1")
             self.controller.create_new_order(client, order_items, delivery_date)
             self.refresh_orders_list()
 
+    # atualiza os detalhes do pedido selecionado e exibe no frame de detalhes
     def refresh_order_details(self):
         # TODO Adicionar valor total dos produtos, eventual Observação do pedido
 
+        # se ja tiver algo no frame de detalhes, limpa
         for widget in self.details_frame.winfo_children():
             widget.destroy()
 
         selected_items = self.orders_table.selection()
         if selected_items:
-            selected_item = selected_items[0]  # Primeiro item selecionado
+            selected_item = selected_items[0]
             order_details = self.orders_table.item(selected_item, "values")
-            order_id = order_details[0]  # ID do pedido
+            order_id = int(order_details[0])  # ID do pedido forçado pra int
 
             order = self.controller.get_order_details(order_id)
 
@@ -304,6 +317,7 @@ class OrderView(tk.Frame):
                 date_frame.pack(fill=tk.X, pady=2)
                 products_frame = tk.Frame(self.details_frame)
                 products_frame.pack(fill=tk.X, pady=2)
+                # TODO adicionar depois o frame para observação e preço total
 
                 # Cliente
                 tk.Label(
@@ -359,11 +373,7 @@ class OrderView(tk.Frame):
                 for product, quantity in order.products:
                     products_listbox.insert(tk.END, f"{quantity}x {product}")
 
-    def create_new_order(self):
-        self.controller.create_new_order()
-        self.refresh_orders_list()
-        messagebox.showinfo("Sucesso", "Novo pedido criado com sucesso!")
-
+    # remove o pedido selecionado
     def remove_order(self):
         selected_items = self.orders_table.selection()
         if not selected_items:
@@ -372,11 +382,14 @@ class OrderView(tk.Frame):
         selected_item = selected_items[0]
         order_details = self.orders_table.item(selected_item, "values")
         order_id = order_details[0]
+
+        # pede confirmação antes de remover, RNF
         if messagebox.askyesno("Confirmar", "Deseja realmente remover este pedido?"):
-            print(f"Removendo pedido {order_id}")
+            print(f"VIEW - Removendo pedido {order_id}")
             self.controller.remove_order(order_id)
             self.refresh_orders_list()
 
+    # abre o popup para editar o pedido selecionado
     def edit_order(self):
         selected_items = self.orders_table.selection()
         if not selected_items:
@@ -399,16 +412,16 @@ class OrderView(tk.Frame):
                 )
                 self.refresh_orders_list()
 
+    # atualiza a lista de pedidos na treeview
     def refresh_orders_list(self):
-        self.orders_table.delete(*self.orders_table.get_children())  # Limpa a TreeView
+        self.orders_table.delete(*self.orders_table.get_children())
         for order in self.controller.get_all_orders():
-            print("Order do Refresh List", order)
-            # Assume que 'order.products' é uma lista de tuplas (nome_do_produto, quantidade)
-            # ou uma lista de dicionários com chaves 'product' e 'quantity'
+            ## print("Order do Refresh List", order)
             products_string = ", ".join(
                 [f"{quantity}x {product}" for product, quantity in order.products]
             )
 
+            # insere os dados do pedido na treeview
             self.orders_table.insert(
                 "",
                 "end",
