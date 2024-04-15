@@ -1,4 +1,5 @@
 from models.order import Order
+import random
 
 
 class OrderController:
@@ -7,6 +8,16 @@ class OrderController:
         self.orders = []
         self.next_order_id = 1
 
+    def generate_id(self):
+        while True:
+            new_id = random.randint(
+                42000000,
+                42999999,  # defini que todos os pedidos começam com id 42 só pq sim kkkk
+            )
+            if all(new_id != order.order_id for order in self.orders):
+                return new_id
+
+    # adaptar depois quando tivermos o crud de clientes
     def get_clients_list(self):
         return [
             "José Eduardo Medeiros Jochem",
@@ -15,6 +26,7 @@ class OrderController:
             "Fabiane Barreto Vavassori Benitti",
         ]
 
+    # adaptar depois quando tivermos o crud de produtos
     def get_products_list(self):
         return [
             "Bolo de Chocolate",
@@ -30,10 +42,7 @@ class OrderController:
         ]
 
     def create_new_order(self, client, products, delivery_date):
-        if self.orders:
-            new_id = int(max(order.order_id for order in self.orders) + 1)
-        else:
-            new_id = int(1)
+        new_id = self.generate_id()
         new_order = Order(
             order_id=new_id,
             client=client,
@@ -44,31 +53,29 @@ class OrderController:
         print(f"Pedido {new_id} criado com sucesso!")
 
     def remove_order(self, order_id):
-        print("Estou dentro do remove_order do order_controller")
-        print(f"order_id: {order_id}")
-        print(f"orders: {self.orders}")
         order_id = int(order_id)
-        for order in self.orders:
-            print("Percorrendo o orders")
+        for index, order in enumerate(self.orders):
             if order.order_id == order_id:
-                self.orders.remove(order)
+                del self.orders[index]
                 print(f"Pedido {order_id} removido com sucesso!")
-                break
+                return
+        print(f"Pedido com ID {order_id} não encontrado.")
 
     def update_order(self, order_id, client, products, delivery_date):
-        for order in self.orders:
-            if order.order_id == order_id:
-                order.client = client
-                order.products = products
-                order.delivery_date = delivery_date
-                break
+        order = next(
+            (order for order in self.orders if order.order_id == order_id), None
+        )
+        if order:
+            order.client = client
+            order.products = products
+            order.delivery_date = delivery_date
+            print(f"Pedido {order_id} atualizado com sucesso!")
 
     def get_all_orders(self):
-        # Retorna todos os pedidos existentes
         return self.orders
 
     def get_order_details(self, order_id):
-        for order in self.orders:
-            if str(order.order_id) == str(order_id):
-                return order
-        return None
+        return next(
+            (order for order in self.orders if str(order.order_id) == str(order_id)),
+            None,
+        )

@@ -2,102 +2,174 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import tkinter.simpledialog as sd
 from tkcalendar import DateEntry
+from datetime import datetime
 
 
-class NewOrderPopup:
+# https://www.youtube.com/watch?v=0CXQ3bbBLVk
+class NewOrderPopup(tk.Toplevel):
     def __init__(self, parent, controller, order=None):
-        self.top = tk.Toplevel(parent)
-        self.top.title("Editar Pedido" if order else "Novo Pedido")
+        super().__init__(parent)
         self.controller = controller
-        self.order = order
-        self.result = None
+        window_width = 600
+        window_height = 600
 
-        parent_width = parent.winfo_screenwidth()
-        parent_height = parent.winfo_screenheight()
-        window_width = 400
-        window_height = 300
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
 
-        position_x = int(parent_width / 2 - window_width / 2)
-        position_y = int(parent_height / 2 - window_height / 2)
+        center_x = int(screen_width / 2 - window_width / 2)
+        center_y = int(screen_height / 2 - window_height / 2) - 30
 
-        self.top.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
+        self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
-        self.top.geometry("400x300")  # Tamanho menor para ficar mais proporcional
-        self.top.resizable(False, False)  # Desabilita o redimensionamento
+        self.title("Pedido" if not order else f"Editar Pedido: {order.order_id}")
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+        self.order_items = []
 
-        # Frame principal para padding
-        main_frame = tk.Frame(self.top, padx=10, pady=10)
-        main_frame.pack(expand=True, fill=tk.BOTH)
+        # Frames Principais
+        top_frame = tk.Frame(self, pady=10)
+        top_frame.pack(fill=tk.X)
 
-        # Frame para os inputs
-        input_frame = tk.Frame(main_frame)
-        input_frame.grid(row=0, column=0, sticky="ew")
-        input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
+        middle_frame = tk.Frame(self)
+        middle_frame.pack(
+            fill=tk.BOTH,
+        )
 
-        # Cliente
-        tk.Label(input_frame, text="Cliente:").grid(row=0, column=0, sticky="e")
+        bottom_frame = tk.Frame(self)
+        bottom_frame.pack(fill=tk.X)
+
+        # Cliente e Data
+        ttk.Label(top_frame, text="Cliente:", style="TLabel").grid(
+            row=0, column=0, padx=10, sticky="e"
+        )
         self.client_combobox = ttk.Combobox(
-            input_frame,
-            values=self.controller.get_clients_list(),
+            top_frame,
+            values=controller.get_clients_list(),
             state="readonly",
-            width=40,
+            width=50,
         )
-        self.client_combobox.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
+        self.client_combobox.grid(row=0, column=1, padx=10, sticky="w")
 
-        # Produto
-        product_frame = tk.Frame(input_frame)
-        product_frame.grid(row=1, column=1, sticky="ew", pady=5)
-        self.product_listbox = tk.Listbox(
-            product_frame, selectmode="extended", exportselection=0, height=6, width=30
+        ttk.Label(top_frame, text="Data de Entrega:", style="TLabel").grid(
+            row=1, column=0, padx=10, pady=10, sticky="e"
         )
-        self.product_scrollbar = tk.Scrollbar(
-            product_frame, orient="vertical", command=self.product_listbox.yview
+        self.delivery_date_entry = DateEntry(
+            top_frame,
+            width=25,
+            date_pattern="dd/mm/yy",
+            state="readonly",
         )
-        self.product_listbox.configure(yscrollcommand=self.product_scrollbar.set)
+        self.delivery_date_entry.grid(row=1, column=1, padx=10, sticky="w")
 
-        self.product_listbox.pack(side="left", fill="both", expand=True)
-        self.product_scrollbar.pack(side="right", fill="y")
-
-        for product in self.controller.get_products_list():
-            self.product_listbox.insert(tk.END, product)
-
-        # Data de Entrega
-        tk.Label(input_frame, text="Data de Entrega:").grid(
-            row=2, column=0, sticky="e", padx=5
+        # Pesquisa e Adição de Produtos
+        ttk.Label(middle_frame, text="Pesquisar Produto:", style="TLabel").pack(
+            anchor="w", padx=10
         )
-        self.delivery_date_entry = DateEntry(input_frame, date_pattern="dd/mm/yyyy")
-        self.delivery_date_entry.grid(row=2, column=1, sticky="ew", pady=5)
+        self.search_var = tk.StringVar()
+        self.search_entry = tk.Entry(
+            middle_frame, textvariable=self.search_var, width=40
+        )
+        self.search_entry.pack(padx=10, pady=5)
+        self.search_entry.bind("<KeyRelease>", self.on_search)
 
-        # Botões
-        button_frame = tk.Frame(main_frame)
-        button_frame.grid(row=1, column=0, sticky="e", pady=10, padx=5)
+        self.products_listbox = tk.Listbox(middle_frame, height=5, width=50)
+        self.products_listbox.pack(padx=10, pady=5, fill=tk.X)
 
-        btn_confirm = tk.Button(button_frame, text="Confirmar", command=self.confirm)
-        btn_confirm.pack(side=tk.RIGHT, padx=(5, 0))
+        ttk.Label(middle_frame, text="Quantidade:", style="TLabel").pack(
+            anchor="w", padx=10
+        )
+        self.quantity_entry = tk.Entry(middle_frame, width=15)
+        self.quantity_entry.pack(padx=10, pady=5)
 
-        btn_cancel = tk.Button(button_frame, text="Cancelar", command=self.top.destroy)
-        btn_cancel.pack(side=tk.RIGHT)
+        add_product_button = ttk.Button(
+            middle_frame, text="Adicionar Produto", command=self.add_product_to_order
+        )
+        add_product_button.pack(pady=10)
+
+        # Label e Listbox para itens do pedido
+        ttk.Label(bottom_frame, text="Itens do Pedido:", style="TLabel").pack(
+            anchor="w", padx=10
+        )
+        self.order_items_listbox = tk.Listbox(bottom_frame, height=10, width=70)
+        self.order_items_listbox.pack(padx=10, pady=5, fill=tk.X)
+
+        # Botão para remover o produto selecionado
+        remove_product_button = ttk.Button(
+            bottom_frame,
+            text="Remover Produto Selecionado",
+            command=self.remove_selected_product,
+        )
+        remove_product_button.pack(pady=5, padx=10)
+
+        # Botão Confirmar
+        confirm_button = ttk.Button(
+            bottom_frame, text="Confirmar Pedido", command=self.confirm_order
+        )
+        confirm_button.pack(pady=10)
 
         if order:
             self.client_combobox.set(order.client)
+            self.delivery_date_entry.set_date(
+                datetime.strptime(order.delivery_date, "%d/%m/%Y").date()
+            )
+            for product, quantity in order.products:
+                self.order_items.append((product, quantity))
+                self.order_items_listbox.insert(
+                    tk.END, f"{product} - Quantidade: {quantity}"
+                )
 
-            for product in order.products:
-                idx = self.controller.get_products_list().index(product)
-                self.product_listbox.selection_set(idx)
-            self.delivery_date_entry.set_date(order.delivery_date)
+    def on_search(self, event=None):
+        search_text = self.search_var.get().lower()
+        matching_products = [
+            product
+            for product in self.controller.get_products_list()
+            if search_text in product.lower()
+        ]
+        self.products_listbox.delete(0, tk.END)
+        for product in matching_products:
+            self.products_listbox.insert(tk.END, product)
 
-    def confirm(self):
+    def add_product_to_order(self):
+        product = self.products_listbox.get(self.products_listbox.curselection())
+        quantity = self.quantity_entry.get()
+        if product and quantity.isdigit():
+            self.order_items.append((product, int(quantity)))
+            self.order_items_listbox.insert(
+                tk.END, f"{product} - Quantidade: {quantity}"
+            )
+            self.quantity_entry.delete(0, tk.END)
+
+    def remove_selected_product(self):
+        selected_indices = self.order_items_listbox.curselection()
+        if not selected_indices:
+            messagebox.showwarning("Aviso", "Selecione um produto para remover.")
+            return
+
+        for index in selected_indices[::-1]:
+            del self.order_items[index]
+
+        self.order_items_listbox.delete(selected_indices[0])
+
+    def confirm_order(self):
         client = self.client_combobox.get()
-        selected_indices = self.product_listbox.curselection()
-        selected_products = [self.product_listbox.get(i) for i in selected_indices]
-        delivery_date = self.delivery_date_entry.get()
+        delivery_date = self.delivery_date_entry.get_date()
+        formatted_date = delivery_date.strftime("%d/%m/%Y")
 
-        self.result = (client, selected_products, delivery_date)
-        self.top.destroy()
+        if not self.order_items or not client:
+            messagebox.showerror("Erro", "Pedido incompleto.")
+            return
+        self.result = {
+            "client": client,
+            "delivery_date": str(formatted_date),
+            "order_items": self.order_items,
+        }
+        print("result", self.result)
+        self.destroy()
 
     def show(self):
-        self.top.grab_set()
-        self.top.wait_window()
+        self.wait_window(self)  # Espera a janela ser destruída
+        # Você pode querer retornar algum valor aqui, por exemplo:
         return self.result
 
 
@@ -159,7 +231,7 @@ class OrderView(tk.Frame):
         )
         self.remove_order_button.pack(side=tk.LEFT, padx=5)
 
-        # Ver detalhes do pedido
+        # Botão para ver detalhes do pedido
         self.view_details_button = tk.Button(
             buttons_frame,
             text="Ver Detalhes do Pedido",
@@ -170,18 +242,15 @@ class OrderView(tk.Frame):
         # Frame para detalhes do pedido
         self.details_frame = tk.Frame(self, borderwidth=2, relief="groove", height=200)
         self.details_frame.pack(fill=tk.X, expand=False, pady=5)
-        self.details_frame.pack_propagate(
-            False
-        )  # Impede o frame de alterar seu tamanho
+        self.details_frame.pack_propagate(False)  # faz o tamanho do frame ficar fixo
 
-        # Canvas e Scrollbar dentro do details_frame
         self.details_canvas = tk.Canvas(self.details_frame)
         self.details_scrollbar = tk.Scrollbar(
             self.details_frame, orient="vertical", command=self.details_canvas.yview
         )
         self.details_scrollable_frame = tk.Frame(self.details_canvas)
 
-        # Configura o frame scrollável para ser o conteúdo do Canvas
+        # faz o frame dentro do canvas ser um scrollavel
         self.details_scrollable_frame.bind(
             "<Configure>",
             lambda e: self.details_canvas.configure(
@@ -194,7 +263,6 @@ class OrderView(tk.Frame):
         )
         self.details_canvas.configure(yscrollcommand=self.details_scrollbar.set)
 
-        # Empacota o Canvas e a Scrollbar no details_frame
         self.details_canvas.pack(side="left", fill="both", expand=True)
         self.details_scrollbar.pack(side="right", fill="y")
 
@@ -204,8 +272,12 @@ class OrderView(tk.Frame):
         popup = NewOrderPopup(self, self.controller)
         result = popup.show()
         if result:
-            client, selected_products, delivery_date = result
-            self.controller.create_new_order(client, selected_products, delivery_date)
+            # Extrai os valores do dicionário result
+            client = result["client"]
+            delivery_date = result["delivery_date"]
+            order_items = result["order_items"]
+            print("1")
+            self.controller.create_new_order(client, order_items, delivery_date)
             self.refresh_orders_list()
 
     def refresh_order_details(self):
@@ -235,7 +307,9 @@ class OrderView(tk.Frame):
 
                 # Cliente
                 tk.Label(
-                    client_frame, text="Cliente:", font=("Arial", 10, "bold")
+                    client_frame,
+                    text="Cliente:",
+                    font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
                 tk.Label(client_frame, text=f"{order.client}").pack(
                     side=tk.LEFT, padx=5
@@ -282,8 +356,8 @@ class OrderView(tk.Frame):
                     products_frame, height=min(4, len(order.products))
                 )
                 products_listbox.pack(fill=tk.X, pady=5)
-                for product in order.products:
-                    products_listbox.insert(tk.END, f"- {product}")
+                for product, quantity in order.products:
+                    products_listbox.insert(tk.END, f"{quantity}x {product}")
 
     def create_new_order(self):
         self.controller.create_new_order()
@@ -313,39 +387,35 @@ class OrderView(tk.Frame):
         order_id = int(order_details[0])
         order = self.controller.get_order_details(order_id)
         if order:
-            popup = NewOrderPopup(
-                self, self.controller, order
-            )  # Assuma que você ajustará o NewOrderPopup para aceitar um pedido existente
+            popup = NewOrderPopup(self, self.controller, order)
             result = popup.show()
             if result:
-                client, selected_products, delivery_date = result
+                # Atualiza o pedido existente com os novos dados
                 self.controller.update_order(
-                    order_id, client, selected_products, delivery_date
+                    order.order_id,
+                    result["client"],
+                    result["order_items"],
+                    result["delivery_date"],
                 )
                 self.refresh_orders_list()
 
     def refresh_orders_list(self):
-        # Primeiro, limpa a tabela atual removendo todos os itens
-        for item in self.orders_table.get_children():
-            self.orders_table.delete(item)
+        self.orders_table.delete(*self.orders_table.get_children())  # Limpa a TreeView
+        for order in self.controller.get_all_orders():
+            print("Order do Refresh List", order)
+            # Assume que 'order.products' é uma lista de tuplas (nome_do_produto, quantidade)
+            # ou uma lista de dicionários com chaves 'product' e 'quantity'
+            products_string = ", ".join(
+                [f"{quantity}x {product}" for product, quantity in order.products]
+            )
 
-        # Busca todos os pedidos existentes através do OrderController
-        orders = self.controller.get_all_orders()
-
-        # Itera sobre os pedidos e insere-os na Treeview
-        for order in orders:
-            # Supondo que 'order.products' seja uma lista de strings representando produtos
-            # e que order.order_id, order.client e order.delivery_date sejam strings ou tipos que podem ser
-            # convertidos facilmente para strings.
             self.orders_table.insert(
                 "",
                 "end",
                 values=(
                     order.order_id,
                     order.client,
-                    ", ".join(
-                        order.products
-                    ),  # Junta todos os produtos em uma string única
+                    products_string,
                     order.delivery_date,
                 ),
             )
