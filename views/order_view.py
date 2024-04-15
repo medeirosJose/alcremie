@@ -284,12 +284,12 @@ class OrderView(tk.Frame):
                 products_listbox.pack(fill=tk.X, pady=5)
                 for product in order.products:
                     products_listbox.insert(tk.END, f"- {product}")
-
+    '''
     def create_new_order(self):
         self.controller.create_new_order()
         self.refresh_orders_list()
         messagebox.showinfo("Sucesso", "Novo pedido criado com sucesso!")
-
+    '''
     def remove_order(self):
         selected_items = self.orders_table.selection()
         if not selected_items:
