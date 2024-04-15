@@ -65,7 +65,7 @@ class NewProductPopup:
         self.description_input.grid(row=2, column=1, sticky="ew", pady=5, padx=5)
 
         # input de peso
-        tk.Label(input_frame, text="Peso(kg):").grid(
+        tk.Label(input_frame, text="Peso(gramas):").grid(
             row=3, column=0, sticky="e", padx=5
         )
         self.weight_input = ttk.Entry(
@@ -93,6 +93,16 @@ class NewProductPopup:
             width=40,
         )
         self.recipe_input.grid(row=5, column=1, sticky="ew", pady=5, padx=5)
+        if product:
+            ingredients = ""
+            for ingredient in product.get_ingredients():
+                ingredients += ingredient + ", "
+            self.name_input.insert(0, product.name)
+            self.price_input.insert(0, product.price)
+            self.description_input.insert(0, product.description)
+            self.weight_input.insert(0, product.weight)
+            self.recipe_input.insert(0, product.recipe)
+            self.ingredients_input.insert(0, ingredients)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -109,10 +119,10 @@ class NewProductPopup:
         price = float(self.price_input.get().replace(",", "."))
         description = self.description_input.get()
         weight = float(self.weight_input.get().replace(",", "."))
-        ingredients = self.ingredients_input.get()
         recipe = self.recipe_input.get()
+        ingredients = self.ingredients_input.get()
         list_of_ingredients = ingredients.split(", ")
-        self.result = (name, price, description, weight, list_of_ingredients, recipe)
+        self.result = (name, price, description, weight, recipe, list_of_ingredients)
         self.top.destroy()
         print(self.result)
 
@@ -242,9 +252,9 @@ class ProductView(tk.Frame):
             )  # Assuma que você ajustará o NewProductPopup para aceitar um pedido existente
             result = popup.show()
             if result:
-                client, selected_products, delivery_date = result
-                self.controller.update_order(
-                    product_id, client, selected_products, delivery_date
+                name, price, description, weight, recipe, ingredients = result
+                self.controller.update_product(
+                    product_id, name, price, description, weight, recipe, ingredients
                 )
                 self.refresh_products_list()
 

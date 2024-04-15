@@ -5,8 +5,8 @@ class Product:
         self.__price = price
         self.__description = description
         self.__weight = weight
-        self.__ingredients = ingredients or []
         self.__recipe = recipe
+        self.__ingredients = ingredients or []
 
     @property
     def id(self):

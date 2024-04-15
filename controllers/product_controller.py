@@ -8,7 +8,7 @@ class ProductController:
         self.app_controller = app_controller
         self.__product_dao = ProductDAO()
 
-    def create_new_product(self, name: str, price: float, description: str, weight: float, recipe: str, ingredients):
+    def create_new_product(self, name: str, price: float, description: str, weight: float, ingredients, recipe: str,):
         products = self.get_products()
         if products:
             new_id = int(max(product.id for product in self.products) + 1)
@@ -30,8 +30,17 @@ class ProductController:
     def remove_product(self, id: int):
         self.__product_dao.remove(id)
 
-    def update_product(self):
-        return
+    def update_product(self, id, name, price, description, weight, recipe, ingredients):
+        product = Product(
+            id,
+            name,
+            price,
+            description,
+            weight,
+            recipe,
+            ingredients,
+        )
+        self.__product_dao.update(product)
 
     def get_products(self):
         products = []
@@ -45,7 +54,7 @@ class ProductController:
     def get_product_details(self, product_id):
         products = self.get_products()
         for product in products:
-            if product.product_id == product_id:
+            if product.id == product_id:
                 return product
         return None
 
