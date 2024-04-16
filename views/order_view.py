@@ -2,12 +2,10 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import tkinter.simpledialog as sd
 from tkcalendar import DateEntry
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # https://www.youtube.com/watch?v=0CXQ3bbBLVk
-
-
 # popup para criar um novo pedido
 class NewOrderPopup(tk.Toplevel):
     def __init__(self, parent, controller, order=None):
@@ -61,10 +59,13 @@ class NewOrderPopup(tk.Toplevel):
         self.delivery_date_entry = DateEntry(
             top_frame,
             width=25,
+            mindate=datetime.now()
+            + timedelta(days=1),  # impede de selecionar datas passadas e o dia atual
             date_pattern="dd/mm/yy",
             state="readonly",
         )
         self.delivery_date_entry.grid(row=1, column=1, padx=10, sticky="w")
+        self.delivery_date_entry.bind("<<DateEntrySelected>>", self.check_date)
 
         # Pesquisa e Adição de Produtos
         ttk.Label(middle_frame, text="Pesquisar Produto:*", style="TLabel").pack(
@@ -123,6 +124,18 @@ class NewOrderPopup(tk.Toplevel):
                 self.order_items_listbox.insert(
                     tk.END, f"{product} - Quantidade: {quantity}"
                 )
+
+    def check_date(self, event=None):
+        # verifica se o dia selecionado é segunda ou terça-feira
+        date = self.delivery_date_entry.get_date()
+        if date.weekday() == 0 or date.weekday() == 1:
+            messagebox.showerror(
+                "Erro",
+                "A confeitaria não abre às segundas e terças-feiras.\nMarcando para o dia seguinte.",
+            )
+            # redefine para o próximo dia válido
+            next_valid_date = date + timedelta(days=2 if date.weekday() == 0 else 1)
+            self.delivery_date_entry.set_date(next_valid_date)
 
     # funcao que filtra os produtos de acordo com o texto digitado
     def on_search(self, event=None):
