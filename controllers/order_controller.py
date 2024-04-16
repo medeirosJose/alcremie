@@ -61,6 +61,21 @@ class OrderController:
         self.load_orders()
         print(f"C - Pedido com ID {new_id} criado com sucesso!")
 
+    #!TODO atualizar depois quando tiver o crud de produtos
+    def check_order_requirements(self, order_items):
+        # total_price = self.calculate_total(order_items)
+        total_price = order_items
+        if total_price > 150:
+            return total_price, f"Pedido com valor de {total_price}. Sinal necessário!"
+        return total_price, None
+
+    def calculate_total(self, order_items):
+        total_price = 0
+        for item in order_items:
+            total_price += item.price
+
+        return total_price
+
     # remove um pedido do DAO com base no ID unico
     def remove_order(self, order_id):
         order_id = int(order_id)

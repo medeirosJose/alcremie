@@ -180,7 +180,6 @@ class NewOrderPopup(tk.Toplevel):
         delivery_date = self.delivery_date_entry.get_date()
         formatted_date = delivery_date.strftime("%d/%m/%Y") if delivery_date else ""
 
-        # basicamente checa se há algum campo vazio e se há pelo menos um item no pedido
         if not client or not formatted_date or not self.order_items:
             messagebox.showerror(
                 "Erro",
@@ -188,12 +187,24 @@ class NewOrderPopup(tk.Toplevel):
             )
             return
 
+        #! CORRIGIR POSTERIORMENTE
+        total_price = 500
+        total_price, message = self.controller.check_order_requirements(
+            # self.order_items
+            total_price
+        )
+
+        if message:
+            response = messagebox.showinfo("Aviso", f"{message} ")
+            if not response:
+                return
+
         self.result = {
             "client": client,
             "delivery_date": formatted_date,
             "order_items": self.order_items,
+            "total_price": total_price,
         }
-        print("result", self.result)
         self.destroy()
 
     def show(self):
