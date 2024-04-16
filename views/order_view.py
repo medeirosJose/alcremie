@@ -44,7 +44,7 @@ class NewOrderPopup(tk.Toplevel):
         bottom_frame.pack(fill=tk.X)
 
         # Cliente e Data
-        ttk.Label(top_frame, text="Cliente:", style="TLabel").grid(
+        ttk.Label(top_frame, text="Cliente:*", style="TLabel").grid(
             row=0, column=0, padx=10, sticky="e"
         )
         self.client_combobox = ttk.Combobox(
@@ -55,7 +55,7 @@ class NewOrderPopup(tk.Toplevel):
         )
         self.client_combobox.grid(row=0, column=1, padx=10, sticky="w")
 
-        ttk.Label(top_frame, text="Data de Entrega:", style="TLabel").grid(
+        ttk.Label(top_frame, text="Data de Entrega:*", style="TLabel").grid(
             row=1, column=0, padx=10, pady=10, sticky="e"
         )
         self.delivery_date_entry = DateEntry(
@@ -67,7 +67,7 @@ class NewOrderPopup(tk.Toplevel):
         self.delivery_date_entry.grid(row=1, column=1, padx=10, sticky="w")
 
         # Pesquisa e Adição de Produtos
-        ttk.Label(middle_frame, text="Pesquisar Produto:", style="TLabel").pack(
+        ttk.Label(middle_frame, text="Pesquisar Produto:*", style="TLabel").pack(
             anchor="w", padx=10
         )
         self.search_var = tk.StringVar()
@@ -80,7 +80,7 @@ class NewOrderPopup(tk.Toplevel):
         self.products_listbox = tk.Listbox(middle_frame, height=5, width=50)
         self.products_listbox.pack(padx=10, pady=5, fill=tk.X)
 
-        ttk.Label(middle_frame, text="Quantidade:", style="TLabel").pack(
+        ttk.Label(middle_frame, text="Quantidade:*", style="TLabel").pack(
             anchor="w", padx=10
         )
         self.quantity_entry = tk.Entry(middle_frame, width=15)
@@ -165,14 +165,19 @@ class NewOrderPopup(tk.Toplevel):
     def confirm_order(self):
         client = self.client_combobox.get()
         delivery_date = self.delivery_date_entry.get_date()
-        formatted_date = delivery_date.strftime("%d/%m/%Y")
+        formatted_date = delivery_date.strftime("%d/%m/%Y") if delivery_date else ""
 
-        if not self.order_items or not client:
-            messagebox.showerror("Erro", "Pedido incompleto.")
+        # basicamente checa se há algum campo vazio e se há pelo menos um item no pedido
+        if not client or not formatted_date or not self.order_items:
+            messagebox.showerror(
+                "Erro",
+                "Todos os campos são obrigatórios e deve haver pelo menos um item no pedido.",
+            )
             return
+
         self.result = {
             "client": client,
-            "delivery_date": str(formatted_date),
+            "delivery_date": formatted_date,
             "order_items": self.order_items,
         }
         print("result", self.result)
