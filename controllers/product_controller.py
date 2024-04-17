@@ -56,10 +56,3 @@ class ProductController:
         for product in products:
             if product.id == product_id:
                 return product
-
-
-    # def return_to_controller(self):
-    #     self.__system_controller.open_view()
-
-    def open_screen(self):
-        return

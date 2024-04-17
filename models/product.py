@@ -1,12 +1,12 @@
 class Product:
-    def __init__(self, id: int, name: str, price: float, description: str, weight: float, recipe: str, ingredients=None):
+    def __init__(self, id: int, name: str, price: float, description: str, weight: float, recipe: str, ingredients: str):
         self.__id = id
         self.__name = name
         self.__price = price
         self.__description = description
         self.__weight = weight
         self.__recipe = recipe
-        self.__ingredients = ingredients or []
+        self.__ingredients = ingredients
 
     @property
     def id(self):
@@ -56,8 +56,10 @@ class Product:
     def recipe(self, recipe: str):
         self.__recipe = recipe
 
-    def get_ingredients(self):
+    @property
+    def ingredients(self):
         return self.__ingredients
 
-    def set_ingredients(self, ingredients):
+    @ingredients.setter
+    def ingredients(self, ingredients: str):
         self.__ingredients = ingredients

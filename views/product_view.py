@@ -35,7 +35,7 @@ class NewProductPopup:
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
         # input de nome do produto
-        tk.Label(input_frame, text="Nome do produto:").grid(
+        tk.Label(input_frame, text="Nome do produto: *").grid(
             row=0, column=0, sticky="e", padx=5
         )
         self.name_input = ttk.Entry(
@@ -45,7 +45,7 @@ class NewProductPopup:
         self.name_input.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
 
         # input de preço
-        tk.Label(input_frame, text="Preço:").grid(
+        tk.Label(input_frame, text="Preço: *").grid(
             row=1, column=0, sticky="e", padx=5
         )
         self.price_input = ttk.Entry(
@@ -55,7 +55,7 @@ class NewProductPopup:
         self.price_input.grid(row=1, column=1, sticky="ew", pady=5, padx=5)
 
         # input de descrição
-        tk.Label(input_frame, text="Descrição:").grid(
+        tk.Label(input_frame, text="Descrição: *").grid(
             row=2, column=0, sticky="e", padx=5
         )
         self.description_input = ttk.Entry(
@@ -65,7 +65,7 @@ class NewProductPopup:
         self.description_input.grid(row=2, column=1, sticky="ew", pady=5, padx=5)
 
         # input de peso
-        tk.Label(input_frame, text="Peso(gramas):").grid(
+        tk.Label(input_frame, text="Peso (gramas):").grid(
             row=3, column=0, sticky="e", padx=5
         )
         self.weight_input = ttk.Entry(
@@ -88,25 +88,21 @@ class NewProductPopup:
         tk.Label(input_frame, text="Receita:").grid(
             row=5, column=0, sticky="e", padx=5
         )
-        self.recipe_input = ttk.Entry(
+        self.recipe_input = tk.Text(
             input_frame,
-            width=40,
+            width=20,
+            height=5,
         )
         self.recipe_input.grid(row=5, column=1, sticky="ew", pady=5, padx=5)
+
+        # coloca os valores atuais dos atributos de produto em cada input
         if product:
-            list_of_ingredients = product.get_ingredients()
-            ingredients_string = ""
-            for pos, ingredient in enumerate(list_of_ingredients):
-                if pos != (len(list_of_ingredients)-1):
-                    ingredients_string += ingredient + ", "
-                else:
-                    ingredients_string += ingredient
             self.name_input.insert(0, product.name)
             self.price_input.insert(0, product.price)
             self.description_input.insert(0, product.description)
             self.weight_input.insert(0, product.weight)
-            self.recipe_input.insert(0, product.recipe)
-            self.ingredients_input.insert(0, ingredients_string)
+            self.recipe_input.insert("1.0", product.recipe)
+            self.ingredients_input.insert(0, product.ingredients)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -120,15 +116,24 @@ class NewProductPopup:
 
     def confirm(self):
         name = self.name_input.get()
-        price = float(self.price_input.get().replace(",", "."))
+        price = self.price_input.get()
         description = self.description_input.get()
-        weight = float(self.weight_input.get().replace(",", "."))
-        recipe = self.recipe_input.get()
+        weight = self.weight_input.get()
+        recipe = self.recipe_input.get("1.0", "end-1c")
         ingredients = self.ingredients_input.get()
-        list_of_ingredients = ingredients.split(", ")
-        self.result = (name, price, description, weight, recipe, list_of_ingredients)
+
+        if not name or not price or not description:
+            messagebox.showerror(
+                "Erro",
+                "Os campos nome, preço e descrição são obrigatórios",
+            )
+            return
+        weight = float(weight.replace(",", "."))
+        price = float(price.replace(",", "."))
+        self.result = (name, price, description, weight, recipe, ingredients)
         self.top.destroy()
         print(self.result)
+
 
     def show(self):
         self.top.grab_set()
@@ -370,16 +375,9 @@ class ProductView(tk.Frame):
                 )
 
                 # Ingredientes
-                list_of_ingredients = product.get_ingredients()
-                ingredients_string = ""
-                for pos, ingredient in enumerate(list_of_ingredients):
-                    if pos != (len(list_of_ingredients) - 1):
-                        ingredients_string += ingredient + ", "
-                    else:
-                        ingredients_string += ingredient
                 tk.Label(
                     ingredients_frame, text="Ingredientes:", font=("Arial", 10, "bold")
                 ).pack(side=tk.LEFT)
-                tk.Label(ingredients_frame, text=f"{ingredients_string}").pack(
+                tk.Label(ingredients_frame, text=f"{product.ingredients}").pack(
                     side=tk.LEFT, padx=5
                 )
