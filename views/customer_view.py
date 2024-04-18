@@ -374,6 +374,8 @@ class CustomersView(tk.Frame):
                 gender.pack(fill=tk.X, pady=2)
                 date_birth = tk.Frame(self.details_frame)
                 date_birth.pack(fill=tk.X, pady=2)
+                loyalty_card = tk.Frame(self.details_frame)
+                loyalty_card.pack(fill=tk.X, pady=2)
 
                 # cpf
                 tk.Label(
@@ -412,5 +414,13 @@ class CustomersView(tk.Frame):
                     date_birth, text="Data de Nascimento:", font=("Arial", 10, "bold")
                 ).pack(side=tk.LEFT)
                 tk.Label(date_birth, text=f"{customer.date_birth}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # cartão de fidelidade
+                tk.Label(
+                    loyalty_card, text="Cartão Fidelidade:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
