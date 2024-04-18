@@ -6,21 +6,23 @@ class CustomerController:
         self.app_controller = app_controller
         self.__customers = CustomerDAO()
 
-    def create_new_customer(self, cpf, name, contact):
-        new_customer = Customer(cpf, name, contact)
+    def create_new_customer(self, cpf, name, contact, gender, date_birth):
+        new_customer = Customer(cpf, name, contact, gender, date_birth)
         self.__customers.add(new_customer)
 
-    def update_customer(self, cpf, new_cpf, name, contact):
+    def update_customer(self, cpf, new_cpf, name, contact, gender, date_birth):
         customer = self.__customers.get(cpf)
+
+        customer.name = name
+        customer.contact = contact
+        customer.gender = gender
+        customer.date_birth = date_birth
+
         if cpf != new_cpf: # se alterar a key no dao: remove o antigo e adiciona com a key nova
             self.__customers.remove(cpf) 
             customer.cpf = new_cpf
-            customer.name = name
-            customer.contact = contact
             self.__customers.add(customer)
         else:
-            customer.name = name
-            customer.contact = contact
             self.__customers.update(customer)
     
     def get_customer(self, cpf):

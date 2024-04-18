@@ -1,8 +1,11 @@
 class Customer:
-    def __init__(self, cpf, name, contact):
+    def __init__(self, cpf, name, contact, gender, date_birth):
         self.__cpf = cpf
         self.__name = name
         self.__contact = contact
+        self.__gender = gender
+        self.__date_birth = date_birth
+        self.__loyalty_card = 0
 
     @property
     def cpf(self):
@@ -30,3 +33,31 @@ class Customer:
     def contact(self, contact: str):
         if isinstance(contact, str):
             self.__contact = contact
+
+    @property
+    def gender(self):
+        return self.__gender
+
+    @gender.setter
+    def gender(self, gender: str):
+        if isinstance(gender, str):
+            self.__gender = gender
+
+    @property
+    def date_birth(self):
+        return self.__date_birth
+
+    @date_birth.setter
+    def date_birth(self, date_birth: str):
+        if isinstance(date_birth, str):
+            self.__date_birth = date_birth
+
+    @property
+    def loyalty_card(self):
+        return self.__loyalty_card
+
+    @loyalty_card.setter
+    def loyalty_card(self, loyalty_card: str):
+        if isinstance(loyalty_card, str):
+            self.__loyalty_card = loyalty_card
+            

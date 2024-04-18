@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
+from tkcalendar import DateEntry
 
 
 class AskCpf:
@@ -90,25 +91,47 @@ class NewCustomerPopup:
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
         # Input CPF
-        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente:")
-        entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5))
+        entry_label_cpf = tk.Label(input_frame, text="* CPF do Cliente:")
+        entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_cpf = tk.Entry(input_frame, width=30)
         self.entry_cpf.grid(row=0, column=1, sticky="ew")
 
         # Input Nome
-        entry_label_name = tk.Label(input_frame, text="Nome do Cliente:")
-        entry_label_name.grid(row=1, column=0, sticky="w", padx=(0, 5))
+        entry_label_name = tk.Label(input_frame, text="* Nome do Cliente:")
+        entry_label_name.grid(row=1, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_name = tk.Entry(input_frame, width=30)
         self.entry_name.grid(row=1, column=1, sticky="ew")        
         
         # Input Contato
-        entry_label_contact = tk.Label(input_frame, text="Contato:")
-        entry_label_contact.grid(row=2, column=0, sticky="w", padx=(0, 5))
+        entry_label_contact = tk.Label(input_frame, text="* Contato:")
+        entry_label_contact.grid(row=2, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_contact = tk.Entry(input_frame, width=30)
         self.entry_contact.grid(row=2, column=1, sticky="ew")
+
+        # Radio Button Gênero
+        self.gender_var = tk.StringVar()
+        self.gender_var.set("Feminino")  # Valor padrão
+
+        gender_frame = tk.Frame(input_frame)
+        gender_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=(0, 5), pady=3)
+
+        tk.Label(gender_frame, text="* Gênero:").pack(side=tk.LEFT)
+
+        radio_female = tk.Radiobutton(gender_frame, text="Feminino", variable=self.gender_var, value="Feminino")
+        radio_female.pack(side=tk.LEFT)
+
+        radio_male = tk.Radiobutton(gender_frame, text="Masculino", variable=self.gender_var, value="Masculino")
+        radio_male.pack(side=tk.LEFT)
+
+        # Calendário Data de Nascimento
+        tk.Label(input_frame, text="* Data de Nascimento:").grid(
+            row=4, column=0, sticky="w", padx=(0, 5)
+        )
+        self.date_birth_entry = DateEntry(input_frame, date_pattern="dd/mm/yyyy")
+        self.date_birth_entry.grid(row=4, column=1, sticky="ew", pady=3)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -121,11 +144,21 @@ class NewCustomerPopup:
         btn_cancel.pack(side=tk.RIGHT)
  
     def confirm(self):
+
         cpf = self.entry_cpf.get()
         name = self.entry_name.get()
         contact = self.entry_contact.get()
+        gender = self.gender_var.get()
+        date_birth = self.date_birth_entry.get()
 
-        self.result = (cpf, name, contact)
+        if not cpf or not name or not contact or not gender or not date_birth:
+            messagebox.showerror(
+                "Erro",
+                "Todos os campos são obrigatórios",
+            )
+            return
+
+        self.result = (cpf, name, contact, gender, date_birth)
         self.top.destroy()
 
     def show(self):
@@ -195,6 +228,45 @@ class CustomersView(tk.Frame):
             buttons_frame, text="Excluir Cliente", command=self.remove_customer
         )
         self.remove_customer_button.pack(side=tk.LEFT, padx=5)
+
+        # Ver detalhes do cliente
+        self.view_details_button = tk.Button(
+            buttons_frame,
+            text="Ver Detalhes do Cliente",
+            command=self.customers_list_details,
+        )
+        self.view_details_button.pack(side=tk.LEFT, padx=5)
+
+        # Frame para detalhes do cliente
+        self.details_frame = tk.Frame(self, borderwidth=2, relief="groove", height=200)
+        self.details_frame.pack(fill=tk.X, expand=False, pady=5)
+        self.details_frame.pack_propagate(
+            False
+        )  # Impede o frame de alterar seu tamanho
+
+        # Canvas e Scrollbar dentro do details_frame
+        self.details_canvas = tk.Canvas(self.details_frame)
+        self.details_scrollbar = tk.Scrollbar(
+            self.details_frame, orient="vertical", command=self.details_canvas.yview
+        )
+        self.details_scrollable_frame = tk.Frame(self.details_canvas)
+
+        # Configura o frame scrollável para ser o conteúdo do Canvas
+        self.details_scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.details_canvas.configure(
+                scrollregion=self.details_canvas.bbox("all")
+            ),
+        )
+
+        self.details_canvas.create_window(
+            (0, 0), window=self.details_scrollable_frame, anchor="nw"
+        )
+        self.details_canvas.configure(yscrollcommand=self.details_scrollbar.set)
+
+        # Empacota o Canvas e a Scrollbar no details_frame
+        self.details_canvas.pack(side="left", fill="both", expand=True)
+        self.details_scrollbar.pack(side="right", fill="y")
         
         self.refresh_customers_list()
 
@@ -222,11 +294,10 @@ class CustomersView(tk.Frame):
         popup = NewCustomerPopup(self, self.controller)
         result = popup.show()
         if result:
-            cpf, name, contact = result
-            self.controller.create_new_customer(cpf, name, contact)
+            cpf, name, contact, gender, date_birth = result
+            self.controller.create_new_customer(cpf, name, contact, gender, date_birth)
             self.refresh_customers_list()
 
-    # não está funcionando para alterar cpf
     def update_customer(self): 
         selected_items = self.customers_table.selection()
         if not selected_items:
@@ -239,12 +310,12 @@ class CustomersView(tk.Frame):
         if customer:
             popup = NewCustomerPopup(
                 self, self.controller, customer
-            )  # Assuma que você ajustará o NewCustomerPopup para aceitar um pedido existente
+            )  
             result = popup.show()
             if result:
-                new_cpf, name, contact = result
+                new_cpf, name, contact, gender, date_birth = result
                 self.controller.update_customer(
-                    cpf, new_cpf, name, contact # passar ainda o antigo cpf pois é a key
+                    cpf, new_cpf, name, contact, gender, date_birth # passar ainda o antigo cpf pois é a key
                 )
                 self.refresh_customers_list()
 
@@ -255,7 +326,7 @@ class CustomersView(tk.Frame):
             return
         try:
             customer = self.controller.get_customer(cpf_result)
-            messagebox.showinfo("Cliente encontrado", f"    Nome: {customer.name}    Contato: {customer.contact}")
+            messagebox.showinfo("Cliente encontrado", f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}")
         except:
             messagebox.showwarning("Aviso", "Cliente não encontrado")
 
@@ -271,3 +342,68 @@ class CustomersView(tk.Frame):
             print(f"Removendo cliente de CPF: {cpf}")
             self.controller.remove_customer(cpf)
             self.refresh_customers_list()
+
+    def customers_list_details(self):
+        for widget in self.details_frame.winfo_children():
+            widget.destroy()
+
+        selected_items = self.customers_table.selection()
+        if selected_items:
+            selected_item = selected_items[0]  # Primeiro item selecionado
+            customer_details = self.customers_table.item(selected_item, "values")
+            customer_cpf = customer_details[0]  # CPF do cliente
+
+            customer = self.controller.get_customer(customer_cpf)
+
+            if customer:
+                # Frames para cada seção
+                cpf_frame = tk.Frame(self.details_frame)
+                cpf_frame.pack(fill=tk.X, pady=2)
+                name = tk.Frame(self.details_frame)
+                name.pack(fill=tk.X, pady=2)
+                contact = tk.Frame(self.details_frame)
+                contact.pack(fill=tk.X, pady=2)
+                gender = tk.Frame(self.details_frame)
+                gender.pack(fill=tk.X, pady=2)
+                date_birth = tk.Frame(self.details_frame)
+                date_birth.pack(fill=tk.X, pady=2)
+
+                # cpf
+                tk.Label(
+                    cpf_frame, text="CPF:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(cpf_frame, text=f"{customer.cpf}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # name
+                tk.Label(
+                    name, text="Nome:", font=("Arial", 10, "bold"),
+                ).pack(side=tk.LEFT)
+                tk.Label(name, text=f"{customer.name}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # contato
+                tk.Label(
+                    contact, text="Contato:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(contact, text=f"{customer.contact}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # gênero
+                tk.Label(
+                    gender, text="Gênero:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(gender, text=f"{customer.gender}").pack(
+                    side=tk.LEFT, padx=5
+                )
+
+                # data de nascimento
+                tk.Label(
+                    date_birth, text="Data de Nascimento:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT)
+                tk.Label(date_birth, text=f"{customer.date_birth}").pack(
+                    side=tk.LEFT, padx=5
+                )
