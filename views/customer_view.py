@@ -91,21 +91,21 @@ class NewCustomerPopup:
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
         # Input CPF
-        entry_label_cpf = tk.Label(input_frame, text="* CPF do Cliente:")
+        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente: *")
         entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_cpf = tk.Entry(input_frame, width=30)
         self.entry_cpf.grid(row=0, column=1, sticky="ew")
 
         # Input Nome
-        entry_label_name = tk.Label(input_frame, text="* Nome do Cliente:")
+        entry_label_name = tk.Label(input_frame, text="Nome do Cliente: *")
         entry_label_name.grid(row=1, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_name = tk.Entry(input_frame, width=30)
         self.entry_name.grid(row=1, column=1, sticky="ew")        
         
         # Input Contato
-        entry_label_contact = tk.Label(input_frame, text="* Contato:")
+        entry_label_contact = tk.Label(input_frame, text="Contato: *")
         entry_label_contact.grid(row=2, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_contact = tk.Entry(input_frame, width=30)
@@ -118,7 +118,7 @@ class NewCustomerPopup:
         gender_frame = tk.Frame(input_frame)
         gender_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=(0, 5), pady=3)
 
-        tk.Label(gender_frame, text="* Gênero:").pack(side=tk.LEFT)
+        tk.Label(gender_frame, text="Gênero: *").pack(side=tk.LEFT)
 
         radio_female = tk.Radiobutton(gender_frame, text="Feminino", variable=self.gender_var, value="Feminino")
         radio_female.pack(side=tk.LEFT)
@@ -127,7 +127,7 @@ class NewCustomerPopup:
         radio_male.pack(side=tk.LEFT)
 
         # Calendário Data de Nascimento
-        tk.Label(input_frame, text="* Data de Nascimento:").grid(
+        tk.Label(input_frame, text="Data de Nascimento: *").grid(
             row=4, column=0, sticky="w", padx=(0, 5)
         )
         self.date_birth_entry = DateEntry(input_frame, date_pattern="dd/mm/yyyy")
@@ -142,6 +142,13 @@ class NewCustomerPopup:
 
         btn_cancel = tk.Button(button_frame, text="Cancelar", command=self.top.destroy)
         btn_cancel.pack(side=tk.RIGHT)
+
+        if customer:
+            self.entry_cpf.insert(0, customer.cpf)
+            self.entry_name.insert(0, customer.name)
+            self.entry_contact.insert(0, customer.contact)
+            self.gender_var.set(customer.gender)
+            self.date_birth_entry.set_date(customer.date_birth)
  
     def confirm(self):
 
@@ -376,7 +383,7 @@ class CustomersView(tk.Frame):
                     side=tk.LEFT, padx=5
                 )
 
-                # name
+                # nome
                 tk.Label(
                     name, text="Nome:", font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
