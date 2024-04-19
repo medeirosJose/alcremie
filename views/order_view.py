@@ -60,7 +60,7 @@ class NewOrderPopup(tk.Toplevel):
             top_frame,
             width=25,
             mindate=datetime.now()
-            + timedelta(days=1),  # impede de selecionar datas passadas e o dia atual
+            + timedelta(days=1),  #! RN 03 - Pedidos devem ter 1 dia de antecedencia
             date_pattern="dd/mm/yy",
             state="readonly",
         )
@@ -125,6 +125,7 @@ class NewOrderPopup(tk.Toplevel):
                     tk.END, f"{product} - Quantidade: {quantity}"
                 )
 
+    #! RN 05 - Não aceita pedidos para segundas e terças
     def check_date(self, event=None):
         # verifica se o dia selecionado é segunda ou terça-feira
         date = self.delivery_date_entry.get_date()
@@ -180,6 +181,7 @@ class NewOrderPopup(tk.Toplevel):
         delivery_date = self.delivery_date_entry.get_date()
         formatted_date = delivery_date.strftime("%d/%m/%Y") if delivery_date else ""
 
+        # checa se os campos obrigatorios estão vazios
         if not client or not formatted_date or not self.order_items:
             messagebox.showerror(
                 "Erro",
@@ -194,6 +196,8 @@ class NewOrderPopup(tk.Toplevel):
             total_price
         )
 
+        # RN X - avisa ao usuário que há um sinal nesse pedido
+        #! adicionar alguma diferença visual para isso
         if message:
             response = messagebox.showinfo("Aviso", f"{message} ")
             if not response:
@@ -367,6 +371,7 @@ class OrderView(tk.Frame):
                 tk.Label(payment_frame, text=f"{order.payment_status}").pack(
                     side=tk.LEFT, padx=5
                 )
+
                 # Data
                 tk.Label(
                     date_frame, text="Data de Entrega:", font=("Arial", 10, "bold")

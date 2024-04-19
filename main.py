@@ -28,7 +28,7 @@ class Main(tk.Tk):
 
         #! Aqui tem q adicionar as demais views e seus controllers atraves do self.app_controller
         self.views = {
-            "Pedido": (
+            "Pedidos": (
                 OrderView,
                 self.app_controller.get_order_controller(),
                 self.icons["order"],
