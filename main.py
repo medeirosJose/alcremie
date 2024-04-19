@@ -2,7 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from views.order_view import OrderView
 from views.product_view import ProductView
-from views.customer_view import CustomersView
+
+# from views.customer_view import CustomersView
 from controllers.app_controller import AppController
 
 
@@ -34,7 +35,7 @@ class Main(tk.Tk):
                 self.icons["order"],
             ),
             "Produtos": (
-                ProductsView,
+                ProductView,
                 self.app_controller.get_products_controller(),
                 self.icons["products"],
             ),
