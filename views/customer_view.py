@@ -96,6 +96,7 @@ class NewCustomerPopup:
 
         self.entry_cpf = tk.Entry(input_frame, width=30)
         self.entry_cpf.grid(row=0, column=1, sticky="ew")
+        self.entry_cpf.bind("<KeyRelease>", self.format_cpf_entry)
 
         # Input Nome
         entry_label_name = tk.Label(input_frame, text="Nome do Cliente: *")
@@ -149,7 +150,30 @@ class NewCustomerPopup:
             self.entry_contact.insert(0, customer.contact)
             self.gender_var.set(customer.gender)
             self.date_birth_entry.set_date(customer.date_birth)
- 
+
+    def format_cpf_entry(self, event):
+        # Obtém o texto atual do campo de entrada do CPF
+        cpf = self.entry_cpf.get()
+
+        # Remove todos os caracteres não numéricos
+        cpf = "".join(filter(str.isdigit, cpf))
+
+        # Limita o comprimento do CPF a 11 caracteres
+        cpf = cpf[:11]
+
+        # Formata o CPF
+        formatted_cpf = ""
+        for i in range(len(cpf)):
+            if i in [3, 6]:
+                formatted_cpf += "."
+            elif i == 9:
+                formatted_cpf += "-"
+            formatted_cpf += cpf[i]
+
+        # Define o texto formatado de volta ao campo de entrada
+        self.entry_cpf.delete(0, tk.END)
+        self.entry_cpf.insert(0, formatted_cpf)
+
     def confirm(self):
 
         cpf = self.entry_cpf.get()
