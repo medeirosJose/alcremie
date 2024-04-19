@@ -7,8 +7,12 @@ class CustomerController:
         self.__customers = CustomerDAO()
 
     def create_new_customer(self, cpf, name, contact, gender, date_birth):
-        new_customer = Customer(cpf, name, contact, gender, date_birth)
-        self.__customers.add(new_customer)
+        try:
+            self.get_customer(cpf) # da erro se não encontrar cliente com esse CPF
+            return "CPF já cadastrado no sistema!"
+        except:
+            new_customer = Customer(cpf, name, contact, gender, date_birth)
+            self.__customers.add(new_customer)
 
     def update_customer(self, cpf, new_cpf, name, contact, gender, date_birth):
         customer = self.__customers.get(cpf)

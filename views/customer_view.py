@@ -153,7 +153,7 @@ class NewCustomerPopup:
     def confirm(self):
 
         cpf = self.entry_cpf.get()
-        name = self.entry_name.get()
+        name = self.entry_name.get().title()
         contact = self.entry_contact.get()
         gender = self.gender_var.get()
         date_birth = self.date_birth_entry.get()
@@ -302,8 +302,12 @@ class CustomersView(tk.Frame):
         result = popup.show()
         if result:
             cpf, name, contact, gender, date_birth = result
-            self.controller.create_new_customer(cpf, name, contact, gender, date_birth)
-            self.refresh_customers_list()
+            repeated_cpf_msg = self.controller.create_new_customer(cpf, name, contact, gender, date_birth)
+            if repeated_cpf_msg != None:
+                messagebox.showwarning("Aviso", repeated_cpf_msg)
+                self.create_new_customer()
+            else:
+                self.refresh_customers_list()
 
     def update_customer(self): 
         selected_items = self.customers_table.selection()
