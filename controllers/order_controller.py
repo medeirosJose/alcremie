@@ -8,7 +8,6 @@ class OrderController:
         self.app_controller = app_controller
         self.orders = []
         self.order_dao = OrderDAO()
-        self.load_orders()
 
     # carrega os pedidos do DAO para a execucao atual
     def load_orders(self):
