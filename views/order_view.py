@@ -450,7 +450,6 @@ class OrderView(tk.Frame):
     def refresh_orders_list(self):
         self.orders_table.delete(*self.orders_table.get_children())
         for order in self.controller.get_all_orders():
-            ## print("Order do Refresh List", order)
             products_string = ", ".join(
                 [f"{quantity}x {product}" for product, quantity in order.products]
             )
@@ -461,7 +460,7 @@ class OrderView(tk.Frame):
                 "end",
                 values=(
                     order.order_id,
-                    order.client,
+                    order.customer,
                     products_string,
                     order.delivery_date,
                 ),

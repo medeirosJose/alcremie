@@ -48,11 +48,11 @@ class OrderController:
         ]
 
     # cria um novo pedido e adiciona ao DAO
-    def create_new_order(self, client, products, delivery_date):
+    def create_new_order(self, customer, products, delivery_date):
         new_id = self.generate_id()
         new_order = Order(
             order_id=new_id,
-            client=client,
+            customer=customer,
             products=products,
             delivery_date=delivery_date,
         )
@@ -86,12 +86,12 @@ class OrderController:
         print(f"C - Pedido com ID {order_id} não encontrado.")
 
     # atualiza um pedido no DAO e atualiza a lista de pedidos
-    def update_order(self, order_id, client, products, delivery_date):
+    def update_order(self, order_id, customer, products, delivery_date):
         order = next(
             (order for order in self.orders if order.order_id == order_id), None
         )
         if order:
-            order.client = client
+            order.customer = customer
             order.products = products
             order.delivery_date = delivery_date
             self.order_dao.update(order)
