@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from views.order_view import OrderView
-from views.products_view import ProductsView
+from views.product_view import ProductView
 from views.customer_view import CustomersView
 from controllers.app_controller import AppController
 
@@ -65,7 +65,6 @@ class Main(tk.Tk):
         self.buttons = {}
         self.create_sidebar_buttons()
 
-    # TODO Trocar o diretorio das funcoes abaixo para o diretorio correto
     def load_icons(self):
         self.icons = {
             "order": ImageTk.PhotoImage(

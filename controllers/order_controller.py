@@ -68,7 +68,7 @@ class OrderController:
         if total_price > 150:
             return total_price, f"Pedido com valor de {total_price}. Sinal necessário!"
         return total_price, None
-    
+
     def calculate_total(self, order_items):
         total_price = 0
         for item in order_items:
