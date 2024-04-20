@@ -128,8 +128,29 @@ class NewProductPopup:
                 "Os campos nome, preço e descrição são obrigatórios",
             )
             return
-        weight = float(weight.replace(",", "."))
-        price = float(price.replace(",", "."))
+
+        if price:
+            try:
+                float(price.replace(",", "."))
+            except ValueError:
+                messagebox.showerror(
+                    "Erro",
+                    "O campo de preço deve ser um número",
+                )
+                return
+            price = float(price.replace(",", "."))
+
+        if weight:
+            try:
+                float(weight.replace(",", "."))
+            except ValueError:
+                messagebox.showerror(
+                    "Erro",
+                    "O campo de peso deve ser um número",
+                )
+                return
+            weight = float(weight.replace(",", "."))
+
         self.result = (name, price, description, weight, recipe, ingredients)
         self.top.destroy()
         print(self.result)
@@ -242,8 +263,8 @@ class ProductView(tk.Frame):
         popup = NewProductPopup(self, self.controller)
         result = popup.show()
         if result:
-            name, price, description, weight, ingredients, recipe = result
-            self.controller.create_new_product(name, price, description, weight, ingredients, recipe)
+            name, price, description, weight, recipe, ingredients = result
+            self.controller.create_new_product(name, price, description, weight, recipe, ingredients)
             self.refresh_products_list()
 
     def edit_product(self):
