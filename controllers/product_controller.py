@@ -48,9 +48,6 @@ class ProductController:
             products.append(product)
         return products
 
-    def find_product_by_id(self):
-        return
-
     def get_product_details(self, product_id):
         products = self.get_products()
         for product in products:
