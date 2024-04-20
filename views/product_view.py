@@ -45,7 +45,7 @@ class NewProductPopup:
         self.name_input.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
 
         # input de preço
-        tk.Label(input_frame, text="Preço: *").grid(
+        tk.Label(input_frame, text="Preço (R$): *").grid(
             row=1, column=0, sticky="e", padx=5
         )
         self.price_input = ttk.Entry(
@@ -97,10 +97,12 @@ class NewProductPopup:
 
         # coloca os valores atuais dos atributos de produto em cada input
         if product:
+            price = str(product.price).replace(".", ",")
+            weight = str(product.weight).replace(".", ",")
             self.name_input.insert(0, product.name)
-            self.price_input.insert(0, product.price)
+            self.price_input.insert(0, price)
             self.description_input.insert(0, product.description)
-            self.weight_input.insert(0, product.weight)
+            self.weight_input.insert(0, weight)
             self.recipe_input.insert("1.0", product.recipe)
             self.ingredients_input.insert(0, product.ingredients)
 
@@ -153,8 +155,6 @@ class NewProductPopup:
 
         self.result = (name, price, description, weight, recipe, ingredients)
         self.top.destroy()
-        print(self.result)
-
 
     def show(self):
         self.top.grab_set()
@@ -179,21 +179,21 @@ class ProductView(tk.Frame):
 
         self.products_table = ttk.Treeview(
             self,
-            columns=("ID", "Nome", "Preço", "Descrição"),
+            columns=("ID", "Nome", "Preço (R$)", "Descrição"),
             show="headings",
         )
 
         self.products_table.heading("ID", text="ID", anchor=tk.CENTER)
         self.products_table.heading("Nome", text="Nome")
-        self.products_table.heading("Preço", text="Preço")
+        self.products_table.heading("Preço (R$)", text="Preço (R$)")
         self.products_table.heading("Descrição", text="Descrição", anchor=tk.CENTER)
 
         self.products_table.column("ID", width=25, anchor=tk.CENTER)  # Pequeno
         self.products_table.column(
             "Nome", width=25, anchor=tk.CENTER
         )  # Pequeno
-        self.products_table.column("Preço", width=100)  # Médio
-        self.products_table.column("Descrição", width=400)  # Médio
+        self.products_table.column("Preço (R$)", width=100, anchor=tk.CENTER)  # Médio
+        self.products_table.column("Descrição", width=400, anchor=tk.CENTER)  # Médio
 
         self.products_table.pack(side="top", fill="both", expand=True, pady=10)
 
@@ -312,13 +312,14 @@ class ProductView(tk.Frame):
 
         # Itera sobre os produtos e insere-os na Treeview
         for product in products:
+            price = str(product.price).replace(".", ",")
             self.products_table.insert(
                 "",
                 "end",
                 values=(
                     product.id,
                     product.name,
-                    product.price,
+                    price,
                     product.description,
                 ),
             )
@@ -362,12 +363,13 @@ class ProductView(tk.Frame):
                 )
 
                 # Preço
+                price = str(product.price).replace(".", ",")
                 tk.Label(
                     price_frame,
-                    text="Preço:",
+                    text="Preço (R$):",
                     font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
-                tk.Label(price_frame, text=f"{product.price}").pack(
+                tk.Label(price_frame, text=f"{price}").pack(
                     side=tk.LEFT, padx=5
                 )
 
@@ -380,10 +382,11 @@ class ProductView(tk.Frame):
                 )
 
                 # Peso
+                weight = str(product.weight).replace(".", ",")
                 tk.Label(
                     weight_frame, text="Peso:", font=("Arial", 10, "bold")
                 ).pack(side=tk.LEFT)
-                tk.Label(weight_frame, text=f"{product.weight}").pack(
+                tk.Label(weight_frame, text=f"{weight}").pack(
                     side=tk.LEFT, padx=5
                 )
 
