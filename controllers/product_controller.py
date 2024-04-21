@@ -1,6 +1,7 @@
 from models.product import Product
 from views.product_view import ProductView
 from DAO.product_dao import ProductDAO
+import random
 
 
 class ProductController:
@@ -8,12 +9,30 @@ class ProductController:
         self.app_controller = app_controller
         self.__product_dao = ProductDAO()
 
-    def create_new_product(self, name: str, price: float, description: str, weight: float, ingredients, recipe: str,):
+    # gera um ID unico para um novo pedido e checa se ja existe
+    def generate_id(self):
+        while True:
+            new_id = random.randint(
+                19000000,
+                19999999,
+            )
+            if not self.__product_dao.get(new_id):
+                return new_id
+
+    def create_new_product(
+        self,
+        name: str,
+        price: float,
+        description: str,
+        weight: float,
+        ingredients,
+        recipe: str,
+    ):
         products = self.get_products()
         if products:
-            new_id = int(max(product.id for product in products) + 1)
+            new_id = self.generate_id()
         else:
-            new_id = int(1)
+            new_id = self.generate_id()
         new_product = Product(
             new_id,
             name,
