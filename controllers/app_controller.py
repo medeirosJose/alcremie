@@ -10,10 +10,9 @@ class AppController:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(AppController, cls).__new__(cls)
-            # Inicialização dos controladores específicos
-            cls.order_controller = OrderController(cls)
-            cls.product_controller = ProductController(cls)
-            cls.customer_controller = CustomerController(cls)
+            cls._instance.order_controller = OrderController(cls._instance)
+            cls._instance.product_controller = ProductController(cls._instance)
+            cls._instance.customer_controller = CustomerController(cls._instance)
         return cls._instance
 
     @staticmethod

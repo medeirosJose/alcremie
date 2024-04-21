@@ -45,9 +45,7 @@ class NewProductPopup:
         self.name_input.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
 
         # input de preço
-        tk.Label(input_frame, text="Preço: *").grid(
-            row=1, column=0, sticky="e", padx=5
-        )
+        tk.Label(input_frame, text="Preço: *").grid(row=1, column=0, sticky="e", padx=5)
         self.price_input = ttk.Entry(
             input_frame,
             width=40,
@@ -85,9 +83,7 @@ class NewProductPopup:
         self.ingredients_input.grid(row=4, column=1, sticky="ew", pady=5, padx=5)
 
         # input de receita
-        tk.Label(input_frame, text="Receita:").grid(
-            row=5, column=0, sticky="e", padx=5
-        )
+        tk.Label(input_frame, text="Receita:").grid(row=5, column=0, sticky="e", padx=5)
         self.recipe_input = tk.Text(
             input_frame,
             width=20,
@@ -134,7 +130,6 @@ class NewProductPopup:
         self.top.destroy()
         print(self.result)
 
-
     def show(self):
         self.top.grab_set()
         self.top.wait_window()
@@ -168,9 +163,7 @@ class ProductView(tk.Frame):
         self.products_table.heading("Descrição", text="Descrição", anchor=tk.CENTER)
 
         self.products_table.column("ID", width=25, anchor=tk.CENTER)  # Pequeno
-        self.products_table.column(
-            "Nome", width=25, anchor=tk.CENTER
-        )  # Pequeno
+        self.products_table.column("Nome", width=25, anchor=tk.CENTER)  # Pequeno
         self.products_table.column("Preço", width=100)  # Médio
         self.products_table.column("Descrição", width=400)  # Médio
 
@@ -181,7 +174,9 @@ class ProductView(tk.Frame):
 
         # Criar um novo produto
         self.create_product_button = tk.Button(
-            buttons_frame, text="Criar Novo Produto", command=self.open_new_product_popup
+            buttons_frame,
+            text="Criar Novo Produto",
+            command=self.open_new_product_popup,
         )
         self.create_product_button.pack(side=tk.LEFT, padx=5)
 
@@ -243,7 +238,9 @@ class ProductView(tk.Frame):
         result = popup.show()
         if result:
             name, price, description, weight, ingredients, recipe = result
-            self.controller.create_new_product(name, price, description, weight, ingredients, recipe)
+            self.controller.create_new_product(
+                name, price, description, weight, ingredients, recipe
+            )
             self.refresh_products_list()
 
     def edit_product(self):
@@ -333,12 +330,10 @@ class ProductView(tk.Frame):
                 ingredients_frame.pack(fill=tk.X, pady=2)
 
                 # Nome
-                tk.Label(
-                    name_frame, text="Nome:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(name_frame, text=f"{product.name}").pack(
-                    side=tk.LEFT, padx=5
+                tk.Label(name_frame, text="Nome:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
                 )
+                tk.Label(name_frame, text=f"{product.name}").pack(side=tk.LEFT, padx=5)
 
                 # Preço
                 tk.Label(
@@ -359,9 +354,9 @@ class ProductView(tk.Frame):
                 )
 
                 # Peso
-                tk.Label(
-                    weight_frame, text="Peso:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
+                tk.Label(weight_frame, text="Peso:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
+                )
                 tk.Label(weight_frame, text=f"{product.weight}").pack(
                     side=tk.LEFT, padx=5
                 )

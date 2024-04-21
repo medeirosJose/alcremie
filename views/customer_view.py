@@ -47,11 +47,11 @@ class AskCpf:
 
         btn_cancel = tk.Button(button_frame, text="Cancelar", command=self.top.destroy)
         btn_cancel.pack(side=tk.RIGHT)
- 
+
     def confirm(self):
         cpf = self.entry_cpf.get()
 
-        self.result = (cpf)
+        self.result = cpf
         self.top.destroy()
 
     def show(self):
@@ -103,8 +103,8 @@ class NewCustomerPopup:
         entry_label_name.grid(row=1, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_name = tk.Entry(input_frame, width=30)
-        self.entry_name.grid(row=1, column=1, sticky="ew")        
-        
+        self.entry_name.grid(row=1, column=1, sticky="ew")
+
         # Input Contato
         entry_label_contact = tk.Label(input_frame, text="Contato: *")
         entry_label_contact.grid(row=2, column=0, sticky="w", padx=(0, 5), pady=3)
@@ -117,14 +117,20 @@ class NewCustomerPopup:
         self.gender_var.set("Feminino")  # Valor padrão
 
         gender_frame = tk.Frame(input_frame)
-        gender_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=(0, 5), pady=3)
+        gender_frame.grid(
+            row=3, column=0, columnspan=2, sticky="ew", padx=(0, 5), pady=3
+        )
 
         tk.Label(gender_frame, text="Gênero: *").pack(side=tk.LEFT)
 
-        radio_female = tk.Radiobutton(gender_frame, text="Feminino", variable=self.gender_var, value="Feminino")
+        radio_female = tk.Radiobutton(
+            gender_frame, text="Feminino", variable=self.gender_var, value="Feminino"
+        )
         radio_female.pack(side=tk.LEFT)
 
-        radio_male = tk.Radiobutton(gender_frame, text="Masculino", variable=self.gender_var, value="Masculino")
+        radio_male = tk.Radiobutton(
+            gender_frame, text="Masculino", variable=self.gender_var, value="Masculino"
+        )
         radio_male.pack(side=tk.LEFT)
 
         # Calendário Data de Nascimento
@@ -221,9 +227,7 @@ class CustomersView(tk.Frame):
 
         self.customers_table.heading("CPF", text="CPF", anchor=tk.CENTER)
         self.customers_table.heading("Nome do Cliente", text="Nome do Cliente")
-        self.customers_table.heading(
-            "Contato", text="Contato", anchor=tk.CENTER
-        )
+        self.customers_table.heading("Contato", text="Contato", anchor=tk.CENTER)
 
         self.customers_table.column("CPF", width=25, anchor=tk.CENTER)  # Pequeno
         self.customers_table.column("Contato", width=25)  # Pequeno
@@ -234,17 +238,21 @@ class CustomersView(tk.Frame):
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(pady=10, padx=10, fill=tk.X, side=tk.TOP)
 
-        #BOTÕES
-        
+        # BOTÕES
+
         # Adicionar cliente
         self.create_customer_button = tk.Button(
-            buttons_frame, text="Adicionar Novo Cliente", command=self.create_new_customer
+            buttons_frame,
+            text="Adicionar Novo Cliente",
+            command=self.create_new_customer,
         )
         self.create_customer_button.pack(side=tk.LEFT, padx=5)
-        
+
         # Editar dados de um cliente
         self.edit_customer_button = tk.Button(
-            buttons_frame, text="Editar Dados de um Cliente", command=self.update_customer
+            buttons_frame,
+            text="Editar Dados de um Cliente",
+            command=self.update_customer,
         )
         self.edit_customer_button.pack(side=tk.LEFT, padx=5)
 
@@ -253,7 +261,7 @@ class CustomersView(tk.Frame):
             buttons_frame, text="Buscar por Cliente", command=self.search_customer
         )
         self.search_customer_button.pack(side=tk.LEFT, padx=5)
-        
+
         # Excluir cliente desse sistema
         self.remove_customer_button = tk.Button(
             buttons_frame, text="Excluir Cliente", command=self.remove_customer
@@ -298,7 +306,7 @@ class CustomersView(tk.Frame):
         # Empacota o Canvas e a Scrollbar no details_frame
         self.details_canvas.pack(side="left", fill="both", expand=True)
         self.details_scrollbar.pack(side="right", fill="y")
-        
+
         self.refresh_customers_list()
 
     def refresh_customers_list(self):
@@ -326,14 +334,16 @@ class CustomersView(tk.Frame):
         result = popup.show()
         if result:
             cpf, name, contact, gender, date_birth = result
-            repeated_cpf_msg = self.controller.create_new_customer(cpf, name, contact, gender, date_birth)
+            repeated_cpf_msg = self.controller.create_new_customer(
+                cpf, name, contact, gender, date_birth
+            )
             if repeated_cpf_msg != None:
                 messagebox.showwarning("Aviso", repeated_cpf_msg)
                 self.create_new_customer()
             else:
                 self.refresh_customers_list()
 
-    def update_customer(self): 
+    def update_customer(self):
         selected_items = self.customers_table.selection()
         if not selected_items:
             messagebox.showwarning("Aviso", "Selecione um cliente para editar.")
@@ -343,25 +353,31 @@ class CustomersView(tk.Frame):
         cpf = customer_details[0]
         customer = self.controller.get_customer(cpf)
         if customer:
-            popup = NewCustomerPopup(
-                self, self.controller, customer
-            )  
+            popup = NewCustomerPopup(self, self.controller, customer)
             result = popup.show()
             if result:
                 new_cpf, name, contact, gender, date_birth = result
                 self.controller.update_customer(
-                    cpf, new_cpf, name, contact, gender, date_birth # passar ainda o antigo cpf pois é a key
+                    cpf,
+                    new_cpf,
+                    name,
+                    contact,
+                    gender,
+                    date_birth,  # passar ainda o antigo cpf pois é a key
                 )
                 self.refresh_customers_list()
 
     def search_customer(self):
         popup = AskCpf(self)
         cpf_result = popup.show()
-        if cpf_result==None: # no caso de apertar o botão cancelar 
+        if cpf_result == None:  # no caso de apertar o botão cancelar
             return
         try:
             customer = self.controller.get_customer(cpf_result)
-            messagebox.showinfo("Cliente encontrado", f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}")
+            messagebox.showinfo(
+                "Cliente encontrado",
+                f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}",
+            )
         except:
             messagebox.showwarning("Aviso", "Cliente não encontrado")
 
@@ -389,6 +405,8 @@ class CustomersView(tk.Frame):
             customer_cpf = customer_details[0]  # CPF do cliente
 
             customer = self.controller.get_customer(customer_cpf)
+            # update customer.loyalty_card
+            self.controller.change_loyalty_card(customer)
 
             if customer:
                 # Frames para cada seção
@@ -406,36 +424,30 @@ class CustomersView(tk.Frame):
                 loyalty_card.pack(fill=tk.X, pady=2)
 
                 # cpf
-                tk.Label(
-                    cpf_frame, text="CPF:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(cpf_frame, text=f"{customer.cpf}").pack(
-                    side=tk.LEFT, padx=5
+                tk.Label(cpf_frame, text="CPF:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
                 )
+                tk.Label(cpf_frame, text=f"{customer.cpf}").pack(side=tk.LEFT, padx=5)
 
                 # nome
                 tk.Label(
-                    name, text="Nome:", font=("Arial", 10, "bold"),
+                    name,
+                    text="Nome:",
+                    font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
-                tk.Label(name, text=f"{customer.name}").pack(
-                    side=tk.LEFT, padx=5
-                )
+                tk.Label(name, text=f"{customer.name}").pack(side=tk.LEFT, padx=5)
 
                 # contato
-                tk.Label(
-                    contact, text="Contato:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(contact, text=f"{customer.contact}").pack(
-                    side=tk.LEFT, padx=5
+                tk.Label(contact, text="Contato:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
                 )
+                tk.Label(contact, text=f"{customer.contact}").pack(side=tk.LEFT, padx=5)
 
                 # gênero
-                tk.Label(
-                    gender, text="Gênero:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(gender, text=f"{customer.gender}").pack(
-                    side=tk.LEFT, padx=5
+                tk.Label(gender, text="Gênero:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
                 )
+                tk.Label(gender, text=f"{customer.gender}").pack(side=tk.LEFT, padx=5)
 
                 # data de nascimento
                 tk.Label(
@@ -447,7 +459,9 @@ class CustomersView(tk.Frame):
 
                 # cartão de fidelidade
                 tk.Label(
-                    loyalty_card, text="Cartão Fidelidade:", font=("Arial", 10, "bold")
+                    loyalty_card,
+                    text="Progresso Cartão Fidelidade:",
+                    font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5

@@ -11,8 +11,9 @@ class NewOrderPopup(tk.Toplevel):
     def __init__(self, parent, controller, order=None):
         super().__init__(parent)
         self.controller = controller
+
         window_width = 600
-        window_height = 600
+        window_height = 750
 
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -23,7 +24,7 @@ class NewOrderPopup(tk.Toplevel):
         # colocao a janela no centro da tela
         self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
-        self.title("Pedido" if not order else f"Editar Pedido: {order.order_id}")
+        self.title("Pedido" if not order else f"Pedido {order.order_id}")
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
@@ -41,17 +42,22 @@ class NewOrderPopup(tk.Toplevel):
         bottom_frame = tk.Frame(self)
         bottom_frame.pack(fill=tk.X)
 
-        # Cliente e Data
-        ttk.Label(top_frame, text="Cliente:*", style="TLabel").grid(
-            row=0, column=0, padx=10, sticky="e"
-        )
         self.client_combobox = ttk.Combobox(
             top_frame,
-            values=controller.get_clients_list(),
+            values=[
+                customer.name for customer in controller.get_customers_list()
+            ],  # nomes dos clientes
             state="readonly",
             width=50,
         )
         self.client_combobox.grid(row=0, column=1, padx=10, sticky="w")
+
+        # Armazenando referências aos objetos Customer para uso posterior
+        self.clients = {
+            customer.name: customer for customer in controller.get_customers_list()
+        }
+
+        self.populate_customers()
 
         ttk.Label(top_frame, text="Data de Entrega:*", style="TLabel").grid(
             row=1, column=0, padx=10, pady=10, sticky="e"
@@ -81,16 +87,25 @@ class NewOrderPopup(tk.Toplevel):
         self.products_listbox = tk.Listbox(middle_frame, height=5, width=50)
         self.products_listbox.pack(padx=10, pady=5, fill=tk.X)
 
+        self.load_products()  # tive que colocar aqui para chamar depois de criar o listbox
+
         ttk.Label(middle_frame, text="Quantidade:*", style="TLabel").pack(
             anchor="w", padx=10
         )
-        self.quantity_entry = tk.Entry(middle_frame, width=15)
-        self.quantity_entry.pack(padx=10, pady=5)
+        self.quantity_entry = ttk.Entry(middle_frame, width=5)
+        self.quantity_entry.pack(padx=10, pady=5, fill="x")
+        self.quantity_entry.bind("<KeyRelease>", self.format_quantity_entry)
 
         add_product_button = ttk.Button(
             middle_frame, text="Adicionar Produto", command=self.add_product_to_order
         )
         add_product_button.pack(pady=10)
+
+        # Observação
+        obs_label = ttk.Label(middle_frame, text="Observação:", style="TLabel")
+        obs_label.pack(anchor="w", padx=10, pady=10, after=add_product_button)
+        self.obs_entry = tk.Text(middle_frame, width=50, height=5)
+        self.obs_entry.pack(padx=10, pady=5, fill="x", after=obs_label)
 
         # Listbox para itens do pedido
         ttk.Label(bottom_frame, text="Itens do Pedido:", style="TLabel").pack(
@@ -115,15 +130,34 @@ class NewOrderPopup(tk.Toplevel):
 
         # preenche os campos com os dados do pedido a ser editado
         if order:
-            self.client_combobox.set(order.client)
-            self.delivery_date_entry.set_date(
-                datetime.strptime(order.delivery_date, "%d/%m/%Y").date()
-            )
+            self.client_combobox.set(order.customer.name)
+            self.delivery_date_entry.set_date(order.delivery_date)
+            self.obs_entry.insert(tk.END, order.observation)
+            self.order_items_listbox.delete(0, tk.END)
+            self.order_items.clear()
+
+            # Adiciona os produtos ao listbox
             for product, quantity in order.products:
                 self.order_items.append((product, quantity))
-                self.order_items_listbox.insert(
-                    tk.END, f"{product} - Quantidade: {quantity}"
+                product_details = (
+                    f"{quantity}x {product.name} - R$ {product.price:.2f}"
+                    if hasattr(product, "name")
+                    else "Produto não identificado"
                 )
+                self.order_items_listbox.insert(tk.END, product_details)
+
+    # funcao que preenche o combobox de clientes e armazena os objetos Customer
+    def populate_customers(self):
+        customers = self.controller.get_customers_list()
+        self.client_combobox["values"] = [customer.name for customer in customers]
+        self.clients = {customer.name: customer for customer in customers}
+
+    # semelhante a funcao de cpf da luana
+    def format_quantity_entry(self, event=None):
+        quantity = self.quantity_entry.get()
+        if not quantity.isdigit():
+            self.quantity_entry.delete(0, tk.END)
+            self.quantity_entry.insert(0, "".join(filter(str.isdigit, quantity)))
 
     #! RN 05 - Não aceita pedidos para segundas e terças
     def check_date(self, event=None):
@@ -139,27 +173,56 @@ class NewOrderPopup(tk.Toplevel):
             self.delivery_date_entry.set_date(next_valid_date)
 
     # funcao que filtra os produtos de acordo com o texto digitado
+    # baseado no video https://www.youtube.com/watch?v=0CXQ3bbBLVk
     def on_search(self, event=None):
         search_text = self.search_var.get().lower()
         matching_products = [
             product
             for product in self.controller.get_products_list()
-            if search_text in product.lower()
+            if search_text
+            in product.name.lower()  # Access the name attribute of Product
         ]
         self.products_listbox.delete(0, tk.END)
         for product in matching_products:
-            self.products_listbox.insert(tk.END, product)
+            self.products_listbox.insert(tk.END, product.name)
+            print(product.price)
+
+    # carrega a lista de produtos do controller
+    def load_products(self):
+        self.products = {
+            product.name: product for product in self.controller.get_products_list()
+        }
+        self.update_product_listbox()
+
+    # atualiza a lista de produtos no listbox
+    def update_product_listbox(self):
+        self.products_listbox.delete(0, tk.END)
+        for product_name in self.products:
+            self.products_listbox.insert(tk.END, product_name)
 
     # adiciona um produto ao pedido
     def add_product_to_order(self):
-        product = self.products_listbox.get(self.products_listbox.curselection())
-        quantity = self.quantity_entry.get()
-        if product and quantity.isdigit():
-            self.order_items.append((product, int(quantity)))
-            self.order_items_listbox.insert(
-                tk.END, f"{product} - Quantidade: {quantity}"
-            )
-            self.quantity_entry.delete(0, tk.END)
+        selected_index = self.products_listbox.curselection()
+        if selected_index:
+            selected_product_name = self.products_listbox.get(selected_index[0])
+            selected_product = self.products[selected_product_name]
+            try:
+                quantity = int(self.quantity_entry.get())
+                if quantity > 0:
+                    self.order_items.append((selected_product, quantity))
+
+                    self.order_items_listbox.insert(
+                        tk.END,
+                        f"{quantity}x {selected_product.name} - {selected_product.price * quantity:.2f}",
+                    )
+
+                    self.quantity_entry.delete(0, tk.END)
+                else:
+                    messagebox.showerror(
+                        "Error", "Quantidade deve ser um número maior que 0."
+                    )
+            except ValueError:
+                messagebox.showerror("Error", "Por favor digite uma quantidade válida.")
 
     # remove um produto do pedido
     def remove_selected_product(self):
@@ -177,39 +240,40 @@ class NewOrderPopup(tk.Toplevel):
 
     # confirma o pedido, fecha a janela e retorna os dados do pedido para o controller
     def confirm_order(self):
-        client = self.client_combobox.get()
-        delivery_date = self.delivery_date_entry.get_date()
-        formatted_date = delivery_date.strftime("%d/%m/%Y") if delivery_date else ""
+        selected_customer_name = self.client_combobox.get()
+        if selected_customer_name in self.clients:
+            selected_customer = self.clients[selected_customer_name]
 
-        # checa se os campos obrigatorios estão vazios
-        if not client or not formatted_date or not self.order_items:
-            messagebox.showerror(
-                "Erro",
-                "Todos os campos são obrigatórios e deve haver pelo menos um item no pedido.",
-            )
-            return
+            delivery_date = self.delivery_date_entry.get_date()
+            formatted_date = delivery_date.strftime("%d/%m/%Y") if delivery_date else ""
 
-        #! CORRIGIR POSTERIORMENTE
-        total_price = 500
-        total_price, message = self.controller.check_order_requirements(
-            # self.order_items
-            total_price
-        )
-
-        # RN X - avisa ao usuário que há um sinal nesse pedido
-        #! adicionar alguma diferença visual para isso
-        if message:
-            response = messagebox.showinfo("Aviso", f"{message} ")
-            if not response:
+            # Checa se os campos obrigatórios estão vazios
+            if not selected_customer_name or not formatted_date or not self.order_items:
+                messagebox.showerror(
+                    "Erro",
+                    "Todos os campos são obrigatórios e deve haver pelo menos um item no pedido.",
+                )
                 return
 
-        self.result = {
-            "client": client,
-            "delivery_date": formatted_date,
-            "order_items": self.order_items,
-            "total_price": total_price,
-        }
-        self.destroy()
+            total_price = self.controller.calculate_total(self.order_items)
+            total_price, message = self.controller.check_order_requirements(total_price)
+
+            # RN X - Avisa ao usuário que há um sinal necessário no pedido
+            if message:
+                response = messagebox.showinfo("Aviso", message)
+                if not response:
+                    return
+
+            self.result = {
+                "client": selected_customer,  # Armazena a instância do cliente
+                "delivery_date": formatted_date,
+                "order_items": self.order_items,  # Lista de tuplas (Product, quantity)
+                "total_price": total_price,
+                "observation": self.obs_entry.get("1.0", "end-1c"),
+            }
+            self.destroy()
+        else:
+            messagebox.showerror("Erro", "Cliente selecionado não encontrado.")
 
     def show(self):
         self.wait_window(self)
@@ -320,8 +384,14 @@ class OrderView(tk.Frame):
             client = result["client"]
             delivery_date = result["delivery_date"]
             order_items = result["order_items"]
+            observation = result["observation"]
             #  print("1")
-            self.controller.create_new_order(client, order_items, delivery_date)
+            self.controller.create_new_order(
+                client,
+                order_items,
+                delivery_date,
+                observation,
+            )
             self.refresh_orders_list()
 
     # atualiza os detalhes do pedido selecionado e exibe no frame de detalhes
@@ -341,71 +411,95 @@ class OrderView(tk.Frame):
             order = self.controller.get_order_details(order_id)
 
             if order:
-                # Frames para cada seção
-                client_frame = tk.Frame(self.details_frame)
-                client_frame.pack(fill=tk.X, pady=2)
-                payment_frame = tk.Frame(self.details_frame)
-                payment_frame.pack(fill=tk.X, pady=2)
-                date_frame = tk.Frame(self.details_frame)
-                date_frame.pack(fill=tk.X, pady=2)
-                products_frame = tk.Frame(self.details_frame)
-                products_frame.pack(fill=tk.X, pady=2)
-                # TODO adicionar depois o frame para observação e preço total
+                # Defina as larguras máximas para os labels e os valores
+                label_width = 20
+                value_width = 30
 
-                # Cliente
+                # Use padx para espaçamento consistente
+                padx_value = 5
+
+                # Frame para Cliente e Data
+                top_frame1 = tk.Frame(self.details_frame)
+                top_frame1.pack(fill=tk.X, pady=2)
+
+                client_frame = tk.Frame(top_frame1)
+                client_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+                date_frame = tk.Frame(top_frame1)
+                date_frame.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
+                # Frame para Status de Pagamento e Preço Total
+                top_frame2 = tk.Frame(self.details_frame)
+                top_frame2.pack(fill=tk.X, pady=2)
+
+                payment_frame = tk.Frame(top_frame2)
+                payment_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+                total_price_frame = tk.Frame(top_frame2)
+                total_price_frame.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
+                # Labels e Listbox
                 tk.Label(
-                    client_frame,
-                    text="Cliente:",
-                    font=("Arial", 10, "bold"),
-                ).pack(side=tk.LEFT)
-                tk.Label(client_frame, text=f"{order.client}").pack(
-                    side=tk.LEFT, padx=5
+                    client_frame, text="Cliente:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT, padx=padx_value)
+                tk.Label(client_frame, text=order.customer.name).pack(
+                    side=tk.LEFT, padx=padx_value
                 )
 
-                # Status de Pagamento
+                tk.Label(
+                    date_frame, text="Data de Entrega:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT, padx=padx_value)
+                tk.Label(date_frame, text=order.delivery_date).pack(
+                    side=tk.LEFT, padx=padx_value
+                )
+
                 tk.Label(
                     payment_frame,
                     text="Status de Pagamento:",
                     font=("Arial", 10, "bold"),
-                ).pack(side=tk.LEFT)
-                tk.Label(payment_frame, text=f"{order.payment_status}").pack(
-                    side=tk.LEFT, padx=5
+                ).pack(side=tk.LEFT, padx=padx_value)
+                tk.Label(payment_frame, text=order.payment_status).pack(
+                    side=tk.LEFT, padx=padx_value
                 )
 
-                # Data
                 tk.Label(
-                    date_frame, text="Data de Entrega:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(date_frame, text=f"{order.delivery_date}").pack(
-                    side=tk.LEFT, padx=5
+                    total_price_frame, text="Preço Total:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT, padx=padx_value)
+                tk.Label(total_price_frame, text=f"R$ {order.total_order_price}").pack(
+                    side=tk.LEFT, padx=padx_value
                 )
 
-                # # Preço Total
-                # tk.Label(
-                #     date_frame, text="Preço Total:", font=("Arial", 10, "bold")
-                # ).pack(side=tk.LEFT)
-                # tk.Label(date_frame, text=f"{order.total_order_price}").pack(
-                #     side=tk.LEFT, padx=5
-                # )
-
-                # # Observação
-                # tk.Label(
-                #     date_frame, text="Observação:", font=("Arial", 10, "bold")
-                # ).pack(side=tk.LEFT)
-                # tk.Label(date_frame, text=f"{order.observation}").pack(
-                #     side=tk.LEFT, padx=5
-                # )
-
-                # Produtos
+                obs_frame = tk.Frame(self.details_frame)
+                obs_frame.pack(fill=tk.X, pady=2)
                 tk.Label(
-                    products_frame, text="Produtos:", font=("Arial", 10, "bold")
-                ).pack(anchor="w")
-                products_listbox = tk.Listbox(
-                    products_frame, height=min(4, len(order.products))
+                    obs_frame, text="Observação:", font=("Arial", 10, "bold")
+                ).pack(side=tk.LEFT, padx=padx_value)
+                tk.Label(obs_frame, text=order.observation).pack(
+                    side=tk.LEFT, fill=tk.X, padx=padx_value
                 )
-                products_listbox.pack(fill=tk.X, pady=5)
+
+                products_frame = tk.Frame(self.details_frame)
+                products_frame.pack(fill=tk.X, pady=2)
+                products_label = tk.Label(
+                    products_frame,
+                    text="Produtos",
+                    font=("Arial", 10, "bold"),
+                    anchor="w",
+                )
+                products_label.pack(side=tk.TOP, anchor="w", padx=padx_value)
+
+                products_listbox = tk.Listbox(products_frame, height=6)
+                products_listbox.pack(
+                    side=tk.LEFT, fill=tk.BOTH, expand=True, padx=padx_value, pady=2
+                )
+
                 for product, quantity in order.products:
-                    products_listbox.insert(tk.END, f"{quantity}x {product}")
+                    products_listbox.insert(
+                        tk.END,
+                        f"{quantity}x {product.name} - R$ {product.price:.2f} a unidade",
+                    )
+
+                self.details_frame.mainloop()
 
     # remove o pedido selecionado
     def remove_order(self):
@@ -432,26 +526,26 @@ class OrderView(tk.Frame):
         selected_item = selected_items[0]
         order_details = self.orders_table.item(selected_item, "values")
         order_id = int(order_details[0])
+
         order = self.controller.get_order_details(order_id)
-        if order:
-            popup = NewOrderPopup(self, self.controller, order)
-            result = popup.show()
-            if result:
-                # Atualiza o pedido existente com os novos dados
-                self.controller.update_order(
-                    order.order_id,
-                    result["client"],
-                    result["order_items"],
-                    result["delivery_date"],
-                )
-                self.refresh_orders_list()
+        popup = NewOrderPopup(self, self.controller, order)
+        result = popup.show()
+        if result:
+            client = result["client"]
+            delivery_date = result["delivery_date"]
+            order_items = result["order_items"]
+            observation = result["observation"]
+            self.controller.update_order(
+                order_id, client, order_items, delivery_date, observation
+            )
+            self.refresh_orders_list()
 
     # atualiza a lista de pedidos na treeview
     def refresh_orders_list(self):
         self.orders_table.delete(*self.orders_table.get_children())
         for order in self.controller.get_all_orders():
             products_string = ", ".join(
-                [f"{quantity}x {product}" for product, quantity in order.products]
+                [f"{quantity}x {product.name}" for product, quantity in order.products]
             )
 
             # insere os dados do pedido na treeview
@@ -460,7 +554,7 @@ class OrderView(tk.Frame):
                 "end",
                 values=(
                     order.order_id,
-                    order.customer,
+                    order.customer.name,
                     products_string,
                     order.delivery_date,
                 ),
