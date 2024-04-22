@@ -32,11 +32,12 @@ class AskCpf:
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
         # Input CPF
-        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente:")
-        entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5))
+        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente: *")
+        entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.entry_cpf = tk.Entry(input_frame, width=30)
         self.entry_cpf.grid(row=0, column=1, sticky="ew")
+        self.entry_cpf.bind("<KeyRelease>", self.format_cpf_entry)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -47,9 +48,39 @@ class AskCpf:
 
         btn_cancel = tk.Button(button_frame, text="Cancelar", command=self.top.destroy)
         btn_cancel.pack(side=tk.RIGHT)
+
+    def format_cpf_entry(self, event):
+        # Obtém o texto atual do campo de entrada do CPF
+        cpf = self.entry_cpf.get()
+
+        # Remove todos os caracteres não numéricos
+        cpf = "".join(filter(str.isdigit, cpf))
+
+        # Limita o comprimento do CPF a 11 caracteres
+        cpf = cpf[:11]
+
+        # Formata o CPF
+        formatted_cpf = ""
+        for i in range(len(cpf)):
+            if i in [3, 6]:
+                formatted_cpf += "."
+            elif i == 9:
+                formatted_cpf += "-"
+            formatted_cpf += cpf[i]
+
+        # Define o texto formatado de volta ao campo de entrada
+        self.entry_cpf.delete(0, tk.END)
+        self.entry_cpf.insert(0, formatted_cpf)
  
     def confirm(self):
         cpf = self.entry_cpf.get()
+
+        if len(cpf) < 14:
+            messagebox.showerror(
+                "Erro",
+                "   CPF incompleto!",
+            )
+            return
 
         self.result = (cpf)
         self.top.destroy()
@@ -186,6 +217,28 @@ class NewCustomerPopup:
             messagebox.showerror(
                 "Erro",
                 "Todos os campos são obrigatórios",
+            )
+            return
+        
+        if len(cpf) < 14:
+            messagebox.showerror(
+                "Erro",
+                "   CPF incompleto!",
+            )
+            return
+        
+        # Verifica se o nome contém apenas espaços
+        if all(caractere.isspace() for caractere in name):
+            messagebox.showerror(
+                "Erro",
+                "   Nome inválido. O nome não pode conter apenas espaços",
+            )
+            return
+        # Verifica se o nome contém apenas letras e espaços, não aceita símbolos
+        if not all(caractere.isalpha() or caractere.isspace() for caractere in name):
+            messagebox.showerror(
+                "Erro",
+                "   Nome inválido. O nome deve conter apenas letras e espaços",
             )
             return
 
@@ -349,10 +402,14 @@ class CustomersView(tk.Frame):
             result = popup.show()
             if result:
                 new_cpf, name, contact, gender, date_birth = result
-                self.controller.update_customer(
+                repeated_cpf_msg = self.controller.update_customer(
                     cpf, new_cpf, name, contact, gender, date_birth # passar ainda o antigo cpf pois é a key
                 )
-                self.refresh_customers_list()
+                if repeated_cpf_msg != None:
+                    messagebox.showwarning("Aviso", repeated_cpf_msg)
+                    self.update_customer()
+                else:
+                    self.refresh_customers_list()
 
     def search_customer(self):
         popup = AskCpf(self)

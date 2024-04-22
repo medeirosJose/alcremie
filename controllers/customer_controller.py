@@ -23,9 +23,13 @@ class CustomerController:
         customer.date_birth = date_birth
 
         if cpf != new_cpf: # se alterar a key no dao: remove o antigo e adiciona com a key nova
-            self.__customers.remove(cpf) 
-            customer.cpf = new_cpf
-            self.__customers.add(customer)
+            try:
+                self.get_customer(new_cpf) # da erro se não encontrar cliente com esse CPF
+                return "CPF já cadastrado no sistema!"
+            except:
+                self.__customers.remove(cpf) 
+                customer.cpf = new_cpf
+                self.__customers.add(customer)
         else:
             self.__customers.update(customer)
     
