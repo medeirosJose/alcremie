@@ -53,7 +53,7 @@ class OrderController:
 
         if new_order.total_order_price > 150:
             new_order.total_order_price, new_order.observation = (
-                self.check_order_requirements(new_order.total_order_price)
+                self.check_order_requirements(new_order.total_order_price, observation)
             )
 
         self.order_dao.add(new_order)
@@ -62,9 +62,14 @@ class OrderController:
         print(new_order.customer.name)
 
     #!TODO atualizar depois quando tiver o crud de produtos
-    def check_order_requirements(self, total_price):
+    def check_order_requirements(self, total_price, observation=None):
         print(f"Total price no check_order_requirements: {total_price}")
-        if total_price > 150:
+        if total_price > 150 and observation:
+            return (
+                total_price,
+                f"Pedido com valor de R${total_price}. Sinal necessário! {observation}",
+            )
+        elif total_price > 150:
             return (
                 total_price,
                 f"Pedido com valor de R${total_price}. Sinal necessário!",
@@ -104,7 +109,7 @@ class OrderController:
 
             if order.total_order_price > 150:
                 order.total_order_price, order.observation = (
-                    self.check_order_requirements(order.total_order_price)
+                    self.check_order_requirements(order.total_order_price, order.observation)
                 )
             self.order_dao.update(order)
             self.load_orders()
