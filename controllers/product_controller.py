@@ -25,8 +25,8 @@ class ProductController:
         price: float,
         description: str,
         weight: float,
-        ingredients,
         recipe: str,
+        ingredients,
     ):
         products = self.get_products()
         if products:
