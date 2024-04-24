@@ -457,8 +457,6 @@ class CustomersView(tk.Frame):
             customer_cpf = customer_details[0]  # CPF do cliente
 
             customer = self.controller.get_customer(customer_cpf)
-            # update customer.loyalty_card
-            self.controller.change_loyalty_card(customer)
 
             if customer:
                 # Frames para cada seção
@@ -518,3 +516,4 @@ class CustomersView(tk.Frame):
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
+                
