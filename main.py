@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from views.order_view import OrderView
-from views.product_view import ProductView
+from views.product_view import ProductView, NewReportPopup
 from views.customer_view import CustomersView
 from controllers.app_controller import AppController
 
@@ -45,8 +45,8 @@ class Main(tk.Tk):
             ),
             # placeholder
             "Relatórios": (
-                OrderView,
-                self.app_controller.get_order_controller(),
+                NewReportPopup,
+                self.app_controller.get_product_controller(),
                 self.icons["reports"],
             ),
             "Pagamentos": (
