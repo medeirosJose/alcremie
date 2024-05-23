@@ -1,9 +1,10 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from views.order_view import OrderView
-from views.product_view import ProductView, NewReportPopup
+from views.product_view import ProductView
 from views.customer_view import CustomersView
 from controllers.app_controller import AppController
+from views.product_report_view import NewReportPopup
 
 
 class Main(tk.Tk):
@@ -44,10 +45,16 @@ class Main(tk.Tk):
                 self.icons["customers"],
             ),
             # placeholder
-            "Relatórios": (
+            "Relatório Produtos": (
                 NewReportPopup,
                 self.app_controller.get_product_controller(),
-                self.icons["reports"],
+                self.icons["product_report"],
+            ),
+
+            "Relatório Lucros": (
+                NewReportPopup,
+                self.app_controller.get_product_controller(),
+                self.icons["profit_report"],
             ),
             "Pagamentos": (
                 OrderView,
@@ -76,7 +83,10 @@ class Main(tk.Tk):
             "customers": ImageTk.PhotoImage(
                 Image.open("icons/customer2.png").resize((24, 24))
             ),
-            "reports": ImageTk.PhotoImage(
+            "product_report": ImageTk.PhotoImage(
+                Image.open("icons/reports2.png").resize((24, 24))
+            ),
+            "profit_report": ImageTk.PhotoImage(
                 Image.open("icons/reports2.png").resize((24, 24))
             ),
             "settings": ImageTk.PhotoImage(
