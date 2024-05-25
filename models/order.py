@@ -19,6 +19,7 @@ class Order:
         self.__products = products
         self.__delivery_date = delivery_date
         self.__payment_status = "Pendente"
+        self.__payment_date = None
         self.__observation = observation
         self.__total_order_price = total_order_price
 
@@ -58,6 +59,14 @@ class Order:
     @payment_status.setter
     def payment_status(self, value):
         self.__payment_status = value
+
+    @property
+    def payment_date(self):
+        return self.__payment_date
+
+    @payment_date.setter
+    def payment_date(self, value):
+        self.__payment_date = value
 
     @property
     def observation(self):

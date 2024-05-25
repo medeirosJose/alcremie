@@ -516,4 +516,6 @@ class CustomersView(tk.Frame):
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
-                
+        
+        else:
+            messagebox.showwarning("Aviso", "Selecione um cliente para ver seus detalhes.")

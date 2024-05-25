@@ -255,7 +255,7 @@ class NewOrderPopup(tk.Toplevel):
                 )
                 return
 
-            total_price = self.controller.calculate_total(self.order_items)
+            total_price, descountApplied = self.controller.calculate_total(self.order_items, selected_customer)
             total_price, message = self.controller.check_order_requirements(total_price)
 
             # RN X - Avisa ao usuário que há um sinal necessário no pedido
@@ -386,12 +386,16 @@ class OrderView(tk.Frame):
             order_items = result["order_items"]
             observation = result["observation"]
             #  print("1")
-            self.controller.create_new_order(
+            descountApplied = self.controller.create_new_order(
                 client,
                 order_items,
                 delivery_date,
                 observation,
             )
+
+            if descountApplied:
+                messagebox.showinfo("Aviso", descountApplied)
+
             self.refresh_orders_list()
 
     # atualiza os detalhes do pedido selecionado e exibe no frame de detalhes
@@ -453,13 +457,24 @@ class OrderView(tk.Frame):
                     side=tk.LEFT, padx=padx_value
                 )
 
-                tk.Label(
-                    payment_frame,
-                    text="Status de Pagamento:",
-                    font=("Arial", 10, "bold"),
-                ).pack(side=tk.LEFT, padx=padx_value)
-                tk.Label(payment_frame, text=order.payment_status).pack(
-                    side=tk.LEFT, padx=padx_value
+                if order.payment_date is None:
+                    tk.Label(
+                        payment_frame,
+                        text="Status de Pagamento:",
+                        font=("Arial", 10, "bold"),
+                    ).pack(side=tk.LEFT, padx=padx_value)
+                    tk.Label(payment_frame, text=order.payment_status).pack(
+                        side=tk.LEFT, padx=padx_value
+                    )
+                else:
+                    payment_date_str = order.payment_date.strftime("%d/%m/%Y")
+                    tk.Label(
+                        payment_frame,
+                        text="Status de Pagamento:",
+                        font=("Arial", 10, "bold"),
+                    ).pack(side=tk.LEFT, padx=padx_value)
+                    tk.Label(payment_frame, text=order.payment_status+', '+payment_date_str).pack(
+                        side=tk.LEFT, padx=padx_value
                 )
 
                 tk.Label(
