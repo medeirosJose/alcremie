@@ -111,22 +111,24 @@ class PendingOrdersView(tk.Frame):
         # cria a TreeView para exibir os pedidos com 4 colunas
         self.orders_table = ttk.Treeview(
             self,
-            columns=("ID", "Cliente", "Produto", "Pagamento", "Data de Entrega"),
+            columns=("ID", "Cliente", "Produto", "Preço", "Pagamento", "Data de Entrega"),
             show="headings",
         )
         print(type(self.orders_table))
         self.orders_table.heading("ID", text="ID", anchor=tk.CENTER)
         self.orders_table.heading("Cliente", text="Cliente")
         self.orders_table.heading("Produto", text="Produto")
+        self.orders_table.heading("Preço", text="Preço", anchor=tk.CENTER)
         self.orders_table.heading("Pagamento", text="Pagamento", anchor=tk.CENTER)
         self.orders_table.heading(
             "Data de Entrega", text="Data de Entrega", anchor=tk.CENTER
         )
 
         # altera o tamanho das colunas pra ficar mais bonito e organizado
-        self.orders_table.column("ID", width=25, anchor=tk.CENTER)
+        self.orders_table.column("ID", width=50, anchor=tk.CENTER)
         self.orders_table.column("Cliente", width=300)
         self.orders_table.column("Produto", width=300)
+        self.orders_table.column("Preço", width=25)
         self.orders_table.column("Pagamento", width=25)
         self.orders_table.column("Data de Entrega", width=25, anchor=tk.CENTER)
 
@@ -314,6 +316,7 @@ class PendingOrdersView(tk.Frame):
                     order.order_id,
                     order.customer.name,
                     products_string,
+                    order.total_order_price,
                     order.payment_status,
                     order.delivery_date,
                 ),
