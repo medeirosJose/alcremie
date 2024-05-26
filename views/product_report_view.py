@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from tkcalendar import DateEntry
 from datetime import datetime
 
@@ -150,7 +150,8 @@ class ShowReportPopup(tk.Frame):
     def show(self):
         self.top.grab_set()
         self.top.wait_window()
-        return self.result
+        return
+
 
 class NewReportPopup(tk.Frame):
     def __init__(self, parent, controller):
@@ -228,13 +229,22 @@ class NewReportPopup(tk.Frame):
         initial_date = self.initial_date_entry.get()
         end_date = self.end_date_entry.get()
         values = self.controller.create_report(initial_date, end_date)
+        if not self.controller.validate_date_interval(initial_date, end_date):
+            messagebox.showerror(
+                "Erro",
+                "O campo de início deve ser maior ou igual ao campo de fim",
+            )
+            self.top.lift()
+            return
         if values:
             ShowReportPopup(
                 self, self.controller, values, initial_date, end_date
             )
+        else:
+            messagebox.showerror(
+                "Erro",
+                "Nenhum produto foi vendido nesse período",
+            )
+            self.top.lift()
+            return
         self.top.destroy()
-
-    def show(self):
-        self.top.grab_set()
-        self.top.wait_window()
-        return self.result

@@ -158,6 +158,7 @@ class NewProductPopup:
         self.top.wait_window()
         return self.result
 
+
 class ProductView(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)

@@ -159,11 +159,21 @@ class ProductController:
         return lower_price_product
 
     def create_report(self, initial_date, end_date):
-        lower_price = self.calculate_lower_price()
-        higher_price = self.calculate_higher_price()
-        minor_seller, minor_seller_quantity = self.calculate_minor_seller(initial_date, end_date)
         bigger_seller, bigger_seller_quantity = self.calculate_bigger_seller(initial_date, end_date)
-        not_sold = self.get_products_not_sold(initial_date, end_date)
-        return (lower_price, higher_price, bigger_seller, bigger_seller_quantity,
-                minor_seller, minor_seller_quantity, not_sold)
+        if bigger_seller:
+            lower_price = self.calculate_lower_price()
+            higher_price = self.calculate_higher_price()
+            minor_seller, minor_seller_quantity = self.calculate_minor_seller(initial_date, end_date)
+            not_sold = self.get_products_not_sold(initial_date, end_date)
+            return (lower_price, higher_price, bigger_seller, bigger_seller_quantity,
+                    minor_seller, minor_seller_quantity, not_sold)
+        else:
+            return False
 
+    def validate_date_interval(self, initial_date, end_date):
+        initial_datetime = datetime.strptime(initial_date, "%d/%m/%Y")
+        end_datetime = datetime.strptime(end_date, "%d/%m/%Y")
+        if initial_datetime <= end_datetime:
+            return True
+        else:
+            return False
