@@ -219,23 +219,25 @@ class NewReportPopup(tk.Frame):
         button_frame = tk.Frame(main_frame)
         button_frame.grid(row=4, column=0, sticky="e", pady=10, padx=5)
 
-        btn_confirm = tk.Button(button_frame, text="Gerar relatório", command=self.confirm)
+        btn_confirm = tk.Button(button_frame, text="Gerar relatório", command=self.create_new_report)
         btn_confirm.pack(side=tk.RIGHT, padx=(5, 0))
 
         btn_cancel = tk.Button(button_frame, text="Cancelar", command=self.top.destroy)
         btn_cancel.pack(side=tk.RIGHT)
 
-    def confirm(self):
+    def create_new_report(self):
         initial_date = self.initial_date_entry.get()
         end_date = self.end_date_entry.get()
-        values = self.controller.create_report(initial_date, end_date)
-        if not self.controller.validate_date_interval(initial_date, end_date):
+        is_interval_valid = self.controller.validate_date_interval(initial_date, end_date)
+        if not is_interval_valid:
             messagebox.showerror(
                 "Erro",
                 "O campo de fim deve ser maior ou igual ao campo de início",
             )
             self.top.lift()
             return
+        values = self.controller.create_report(initial_date, end_date)
+
         if values:
             ShowReportPopup(
                 self, self.controller, values, initial_date, end_date

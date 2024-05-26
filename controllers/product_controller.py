@@ -135,7 +135,8 @@ class ProductController:
     def calculate_higher_price(self):
         higher_price_id = 0
         higher_price = 0
-        for index, product in enumerate(self.__product_dao.get_all()):
+        products = self.get_products()
+        for index, product in enumerate(products):
             if index == 0:
                 higher_price_id = product.id
                 higher_price = product.price
@@ -148,7 +149,8 @@ class ProductController:
     def calculate_lower_price(self):
         lower_price_id = 0
         lower_price = 0
-        for index, product in enumerate(self.__product_dao.get_all()):
+        products = self.get_products()
+        for index, product in enumerate(products):
             if index == 0:
                 lower_price_id = product.id
                 lower_price = product.price
@@ -161,9 +163,9 @@ class ProductController:
     def create_report(self, initial_date, end_date):
         bigger_seller, bigger_seller_quantity = self.calculate_bigger_seller(initial_date, end_date)
         if bigger_seller:
+            minor_seller, minor_seller_quantity = self.calculate_minor_seller(initial_date, end_date)
             lower_price = self.calculate_lower_price()
             higher_price = self.calculate_higher_price()
-            minor_seller, minor_seller_quantity = self.calculate_minor_seller(initial_date, end_date)
             not_sold = self.get_products_not_sold(initial_date, end_date)
             return (lower_price, higher_price, bigger_seller, bigger_seller_quantity,
                     minor_seller, minor_seller_quantity, not_sold)
