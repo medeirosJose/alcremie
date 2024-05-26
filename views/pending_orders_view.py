@@ -353,7 +353,7 @@ class PendingOrdersView(tk.Frame):
                         if (datetime.now().date() - delivery_date >= timedelta(days=2)):
                             messagebox.showwarning("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
                         else:
-                            messagebox.showinfo("Aviso", "Sinal não deve ser devolvido pois foi cancelado com menos de dois dias de antecedência")
+                            messagebox.showinfo("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")
                 else: # como está pendente não salva uma data junto a ele
                     self.controller.update_order(order_id, payment_status)
                 self.refresh_pending_orders_list()
