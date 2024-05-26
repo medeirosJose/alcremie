@@ -428,7 +428,7 @@ class CustomersView(tk.Frame):
             customer = self.controller.get_customer(cpf_result)
             messagebox.showinfo(
                 "Cliente encontrado",
-                f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}",
+                f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}\n    Cartão Fidelidade: {customer.loyalty_card}",
             )
         except:
             messagebox.showwarning("Aviso", "Cliente não encontrado")
