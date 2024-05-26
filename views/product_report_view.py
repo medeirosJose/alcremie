@@ -232,7 +232,7 @@ class NewReportPopup(tk.Frame):
         if not self.controller.validate_date_interval(initial_date, end_date):
             messagebox.showerror(
                 "Erro",
-                "O campo de início deve ser maior ou igual ao campo de fim",
+                "O campo de fim deve ser maior ou igual ao campo de início",
             )
             self.top.lift()
             return

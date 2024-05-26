@@ -173,7 +173,7 @@ class ProductController:
     def validate_date_interval(self, initial_date, end_date):
         initial_datetime = datetime.strptime(initial_date, "%d/%m/%Y")
         end_datetime = datetime.strptime(end_date, "%d/%m/%Y")
-        if initial_datetime <= end_datetime:
+        if end_datetime >= initial_datetime:
             return True
         else:
             return False
