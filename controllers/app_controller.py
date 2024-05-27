@@ -2,6 +2,7 @@ from controllers.customer_controller import CustomerController
 from controllers.order_controller import OrderController
 from controllers.product_controller import ProductController
 from controllers.product_controller import ProductController
+from controllers.supplier_controller import SupplierController
 
 
 class AppController:
@@ -13,6 +14,7 @@ class AppController:
             cls._instance.order_controller = OrderController(cls._instance)
             cls._instance.product_controller = ProductController(cls._instance)
             cls._instance.customer_controller = CustomerController(cls._instance)
+            cls._instance.supplier_controller = SupplierController(cls._instance)
         return cls._instance
 
     @staticmethod
@@ -29,3 +31,6 @@ class AppController:
 
     def get_customer_controller(self):
         return self.customer_controller
+
+    def get_supplier_controller(self):
+        return self.supplier_controller

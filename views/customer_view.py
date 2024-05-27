@@ -71,7 +71,7 @@ class AskCpf:
         # Define o texto formatado de volta ao campo de entrada
         self.entry_cpf.delete(0, tk.END)
         self.entry_cpf.insert(0, formatted_cpf)
- 
+
     def confirm(self):
         cpf = self.entry_cpf.get()
 
@@ -232,7 +232,7 @@ class NewCustomerPopup:
                 "   CPF incompleto!",
             )
             return
-        
+
         # Verifica se o nome contém apenas espaços
         if all(caractere.isspace() for caractere in name):
             messagebox.showerror(
@@ -411,7 +411,12 @@ class CustomersView(tk.Frame):
             if result:
                 new_cpf, name, contact, gender, date_birth = result
                 repeated_cpf_msg = self.controller.update_customer(
-                    cpf, new_cpf, name, contact, gender, date_birth # passar ainda o antigo cpf pois é a key
+                    cpf,
+                    new_cpf,
+                    name,
+                    contact,
+                    gender,
+                    date_birth,  # passar ainda o antigo cpf pois é a key
                 )
                 if repeated_cpf_msg != None:
                     messagebox.showwarning("Aviso", repeated_cpf_msg)
@@ -516,4 +521,3 @@ class CustomersView(tk.Frame):
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
-                
