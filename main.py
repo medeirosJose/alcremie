@@ -3,11 +3,18 @@ from PIL import Image, ImageTk
 from views.order_view import OrderView
 from views.product_view import ProductView
 from views.customer_view import CustomersView
+from views.supplier_view import SupplierView
+
+import os
+
+clear = lambda: os.system("cls")
+
 from controllers.app_controller import AppController
 
 
 class Main(tk.Tk):
     def __init__(self, app_controller):
+        clear()
         super().__init__()
         self.title("Confeitaria Alcremie")
         self.state("zoomed")
@@ -41,6 +48,11 @@ class Main(tk.Tk):
             "Clientes": (
                 CustomersView,
                 self.app_controller.get_customer_controller(),
+                self.icons["customers"],
+            ),
+            "Fornecedores": (
+                SupplierView,
+                self.app_controller.get_supplier_controller(),
                 self.icons["customers"],
             ),
             # placeholder
