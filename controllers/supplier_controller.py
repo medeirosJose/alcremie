@@ -1,7 +1,6 @@
 from models.supplier import Supplier
 from DAO.supplier_dao import SupplierDAO
 from views.supplier_view import SupplierView
-from models.supply import Supply
 
 
 class SupplierController:

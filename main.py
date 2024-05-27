@@ -62,7 +62,6 @@ class Main(tk.Tk):
                 self.app_controller.get_product_controller(),
                 self.icons["product_report"],
             ),
-
             "Relatório Lucros": (
                 NewReportPopup,
                 self.app_controller.get_product_controller(),
