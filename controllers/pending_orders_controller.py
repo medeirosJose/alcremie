@@ -28,7 +28,7 @@ class PendingOrdersController:
             # para atender a RN06 - Após 3 pedidos com um valor mínimo de 75 reais realizados por um
             # mesmo cliente, no próxmo pedido é aplicado um desconto
             # é feito aqui para garantir que pedidos cancelados não são válidos
-            elif delivery_date < datetime.now().date() and order.payment_status == 'Pago' and order.total_order_price >= 75:
+            if delivery_date < datetime.now().date() and order.payment_status == 'Pago' and order.total_order_price >= 75:
             # use a linha seguinte para testes e demonstrações:
             # elif delivery_date <= datetime.now().date() and order.payment_status == 'Pago' or delivery_date==datetime.now().date()+ timedelta(days=1):
                 # Salva os pedidos já contabilizados para que ao atualizar a lista de pedidos não 
