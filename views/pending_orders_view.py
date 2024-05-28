@@ -114,7 +114,7 @@ class PendingOrdersView(tk.Frame):
             columns=("ID", "Cliente", "Produto", "Preço", "Pagamento", "Data de Entrega"),
             show="headings",
         )
-        print(type(self.orders_table))
+
         self.orders_table.heading("ID", text="ID", anchor=tk.CENTER)
         self.orders_table.heading("Cliente", text="Cliente")
         self.orders_table.heading("Produto", text="Produto")
@@ -136,12 +136,12 @@ class PendingOrdersView(tk.Frame):
 
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(pady=10, padx=10, fill=tk.X, side=tk.TOP)
+        print(type(tk.X))
+        print(type(tk.TOP))
 
         # botão para ver detalhes do pedido
         self.view_details_button = tk.Button(
-            buttons_frame,
-            text="Ver Detalhes do Pedido",
-            command=self.refresh_order_details,
+            buttons_frame, text="Ver Detalhes do Pedido", command=self.refresh_order_details,
         )
         self.view_details_button.pack(side=tk.LEFT, padx=5)
 
@@ -189,7 +189,10 @@ class PendingOrdersView(tk.Frame):
             widget.destroy()
 
         selected_items = self.orders_table.selection()
-        if selected_items:
+
+        if not selected_items:
+            self.show_warning_popup("Aviso", "Selecione um pedido para ver seus detalhes.")
+        else:
             selected_item = selected_items[0]
             order_details = self.orders_table.item(selected_item, "values")
             order_id = int(order_details[0])  # ID do pedido forçado pra int
@@ -297,8 +300,6 @@ class PendingOrdersView(tk.Frame):
                     )
 
                 self.details_frame.mainloop()
-        else:
-            messagebox.showwarning("Aviso", "Selecione um pedido para ver seus detalhes.")
 
     # atualiza a lista de pedidos na treeview
     def refresh_pending_orders_list(self):
@@ -325,12 +326,11 @@ class PendingOrdersView(tk.Frame):
     # abre o pop up para o gerenciamento do estado de pagamento do pedido
     def manage_paymt_status(self):
         selected_items = self.orders_table.selection()
-
-        if not selected_items:
-            messagebox.showwarning("Aviso", "Selecione um pedido para gerenciar o estado de pagamento.")
-            return
         
-        if selected_items:
+        if not selected_items:
+            self.show_warning_popup("Aviso", "Selecione um pedido para gerenciar o estado de pagamento.")
+            
+        else:
             selected_item = selected_items[0]
             order_details = self.orders_table.item(selected_item, "values")
             order_id = int(order_details[0])  # ID do pedido forçado pra int
@@ -351,9 +351,15 @@ class PendingOrdersView(tk.Frame):
                     delivery_date = datetime.strptime(order.delivery_date, "%d/%m/%Y").date()
                     if payment_status == "Cancelado" and order.total_order_price > 150:
                         if (datetime.now().date() - delivery_date >= timedelta(days=2)):
-                            messagebox.showwarning("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
+                            self.show_warning_popup("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
                         else:
-                            messagebox.showinfo("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")
+                            self.show_info_popup("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")
                 else: # como está pendente não salva uma data junto a ele
                     self.controller.update_order(order_id, payment_status)
                 self.refresh_pending_orders_list()
+
+    def show_info_popup(self, title, message):
+        messagebox.showinfo(title, message)
+
+    def show_warning_popup(self, title, message):
+        messagebox.showwarning(title, message)
