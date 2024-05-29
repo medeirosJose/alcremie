@@ -363,5 +363,10 @@ class SupplierView(ttk.Frame):
             company = result["company"]
             contact = result["contact"]
             ingredients = result["ingredients"]
-            self.controller.create_new_supplier(cnpj, company, contact, ingredients)
-            self.refresh_supplier_table()
+            msg = self.controller.create_new_supplier(
+                cnpj, company, contact, ingredients
+            )
+            if msg:
+                messagebox.showwarning("Aviso", msg)
+            else:
+                self.refresh_supplier_table()

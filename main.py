@@ -5,17 +5,12 @@ from views.product_view import ProductView
 from views.customer_view import CustomersView
 from views.supplier_view import SupplierView
 
-import os
-
-clear = lambda: os.system("cls")
-
 from controllers.app_controller import AppController
 from views.product_report_view import NewReportPopup
 
 
 class Main(tk.Tk):
     def __init__(self, app_controller):
-        clear()
         super().__init__()
         self.title("Confeitaria Alcremie")
         self.state("zoomed")
