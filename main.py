@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 from views.order_view import OrderView
 from views.product_view import ProductView
 from views.customer_view import CustomersView
+from views.pending_orders_view import PendingOrdersView
 from views.supplier_view import SupplierView
 
 from controllers.app_controller import AppController
@@ -63,8 +64,8 @@ class Main(tk.Tk):
                 self.icons["profit_report"],
             ),
             "Pagamentos": (
-                OrderView,
-                self.app_controller.get_order_controller(),
+                PendingOrdersView,
+                self.app_controller.get_pending_orders_controller(),
                 self.icons["settings"],
             ),
             "Sair": (

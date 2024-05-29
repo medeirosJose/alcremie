@@ -42,13 +42,15 @@ class OrderController:
     ):
         new_id = self.generate_id()
 
+        order_price, descountApplied = self.calculate_total(products_with_quantities, customer)
+
         new_order = Order(
             order_id=new_id,
             customer=customer,
             products=products_with_quantities,
             delivery_date=delivery_date,
             observation=observation,
-            total_order_price=self.calculate_total(products_with_quantities),
+            total_order_price=order_price,
         )
 
         if new_order.total_order_price > 150:
@@ -60,6 +62,8 @@ class OrderController:
         self.load_orders()
         print(f"Pedido com ID {new_id} criado com sucesso!")
         print(new_order.customer.name)
+
+        return descountApplied # mensagem na tela avisando que o desconto do cartão fidelidade foi aplicado no valor do pedido
 
     #!TODO atualizar depois quando tiver o crud de produtos
     def check_order_requirements(self, total_price, observation=None):
@@ -76,12 +80,18 @@ class OrderController:
             )
         return total_price, None
 
-    def calculate_total(self, products_with_quantities):
+    def calculate_total(self, products_with_quantities, customer):
         total_price = 0
         for product, quantity in products_with_quantities:
             total_price += product.price * quantity
+
+        # testa se ele completou seu cartão de fidelidade e pode receber desconto (RN06)
+        descountApplied = None
+        if customer.loyalty_card == 3:
+            total_price *= 85/100
+            descountApplied = "Desconto do cartão fidelidade aplicado"
         print(f"Total price: {total_price}")
-        return total_price
+        return total_price, descountApplied
 
     # remove um pedido do DAO com base no ID unico
     def remove_order(self, order_id):
@@ -105,7 +115,7 @@ class OrderController:
             order.products = products
             order.delivery_date = delivery_date
             order.observation = observation
-            order.total_order_price = self.calculate_total(products)
+            order.total_order_price, x = self.calculate_total(products, customer)
 
             if order.total_order_price > 150:
                 order.total_order_price, order.observation = (
