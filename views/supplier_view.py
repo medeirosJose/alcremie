@@ -355,18 +355,21 @@ class SupplierView(ttk.Frame):
         tk.Label(ingredients_frame, text=supplier.ingredients).pack(side=tk.LEFT)
 
     def open_create_supplier_popup(self):
-        popup = NewSupplierPopup(self, self.controller)
-        result = popup.show()
-        ##print("result", result)
-        if result:
-            cnpj = result["cnpj"]
-            company = result["company"]
-            contact = result["contact"]
-            ingredients = result["ingredients"]
-            msg = self.controller.create_new_supplier(
-                cnpj, company, contact, ingredients
-            )
-            if msg:
-                messagebox.showwarning("Aviso", msg)
+        while True:
+            popup = NewSupplierPopup(self, self.controller)
+            result = popup.show()
+            if result:
+                cnpj = result["cnpj"]
+                company = result["company"]
+                contact = result["contact"]
+                ingredients = result["ingredients"]
+                msg = self.controller.create_new_supplier(
+                    cnpj, company, contact, ingredients
+                )
+                if msg:
+                    messagebox.showwarning("Aviso", msg)
+                else:
+                    self.refresh_supplier_table()
+                    break  # Se a criação for bem sucedida, saia do loop
             else:
-                self.refresh_supplier_table()
+                break  # Se o usuário cancelar, saia do loop
