@@ -30,7 +30,7 @@ class PendingOrdersController:
             # é feito aqui para garantir que pedidos cancelados não são válidos
             if delivery_date < datetime.now().date() and order.payment_status == 'Pago' and order.total_order_price >= 75:
             # use a linha seguinte para testes e demonstrações:
-            # elif delivery_date <= datetime.now().date() and order.payment_status == 'Pago' or delivery_date==datetime.now().date()+ timedelta(days=1):
+            # if delivery_date < datetime.now().date() and order.payment_status == 'Pago' and order.total_order_price >= 75 or delivery_date==datetime.now().date()+ timedelta(days=3):
                 # Salva os pedidos já contabilizados para que ao atualizar a lista de pedidos não 
                 # seja adicionado várias vezes o mesmo
                 if order.order_id not in self.order_in_loyalty_card:

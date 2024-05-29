@@ -350,7 +350,7 @@ class PendingOrdersView(tk.Frame):
 
                     delivery_date = datetime.strptime(order.delivery_date, "%d/%m/%Y").date()
                     if payment_status == "Cancelado" and order.total_order_price > 150:
-                        if (datetime.now().date() - delivery_date >= timedelta(days=2)):
+                        if (delivery_date - datetime.now().date() >= timedelta(days=2)):
                             self.show_warning_popup("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
                         else:
                             self.show_info_popup("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")

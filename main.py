@@ -4,11 +4,19 @@ from views.order_view import OrderView
 from views.product_view import ProductView
 from views.customer_view import CustomersView
 from views.pending_orders_view import PendingOrdersView
+from views.supplier_view import SupplierView
+
+import os
+
+clear = lambda: os.system("cls")
+
 from controllers.app_controller import AppController
+from views.product_report_view import NewReportPopup
 
 
 class Main(tk.Tk):
     def __init__(self, app_controller):
+        clear()
         super().__init__()
         self.title("Confeitaria Alcremie")
         self.state("zoomed")
@@ -44,11 +52,21 @@ class Main(tk.Tk):
                 self.app_controller.get_customer_controller(),
                 self.icons["customers"],
             ),
+            "Fornecedores": (
+                SupplierView,
+                self.app_controller.get_supplier_controller(),
+                self.icons["customers"],
+            ),
             # placeholder
-            "Relatórios": (
-                OrderView,
-                self.app_controller.get_order_controller(),
-                self.icons["reports"],
+            "Relatório Produtos": (
+                NewReportPopup,
+                self.app_controller.get_product_controller(),
+                self.icons["product_report"],
+            ),
+            "Relatório Lucros": (
+                NewReportPopup,
+                self.app_controller.get_product_controller(),
+                self.icons["profit_report"],
             ),
             "Pagamentos": (
                 PendingOrdersView,
@@ -77,7 +95,10 @@ class Main(tk.Tk):
             "customers": ImageTk.PhotoImage(
                 Image.open("icons/customer2.png").resize((24, 24))
             ),
-            "reports": ImageTk.PhotoImage(
+            "product_report": ImageTk.PhotoImage(
+                Image.open("icons/reports2.png").resize((24, 24))
+            ),
+            "profit_report": ImageTk.PhotoImage(
                 Image.open("icons/reports2.png").resize((24, 24))
             ),
             "settings": ImageTk.PhotoImage(

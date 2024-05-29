@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
-import tkinter.simpledialog as sd
-from tkcalendar import DateEntry
 
 
 class NewProductPopup:
@@ -402,3 +400,5 @@ class ProductView(tk.Frame):
                 tk.Label(ingredients_frame, text=f"{product.ingredients}").pack(
                     side=tk.LEFT, padx=5
                 )
+
+

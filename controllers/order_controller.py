@@ -115,11 +115,13 @@ class OrderController:
             order.products = products
             order.delivery_date = delivery_date
             order.observation = observation
-            order.total_order_price = self.calculate_total(products, customer)
+            order.total_order_price, x = self.calculate_total(products, customer)
 
             if order.total_order_price > 150:
                 order.total_order_price, order.observation = (
-                    self.check_order_requirements(order.total_order_price, order.observation)
+                    self.check_order_requirements(
+                        order.total_order_price, order.observation
+                    )
                 )
             self.order_dao.update(order)
             self.load_orders()
@@ -129,7 +131,7 @@ class OrderController:
 
     # retorna todas as informacoes de um pedido com base no ID
     def get_order_details(self, order_id):
-        #print(f"Pedido ID: {type(order_id), order_id}")
+        # print(f"Pedido ID: {type(order_id), order_id}")
         return self.order_dao.get(order_id)
 
     def get_all_orders(self):
