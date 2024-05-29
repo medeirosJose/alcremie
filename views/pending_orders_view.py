@@ -178,7 +178,7 @@ class PendingOrdersView(tk.Frame):
         self.details_canvas.pack(side="left", fill="both", expand=True)
         self.details_scrollbar.pack(side="right", fill="y")
 
-        self.refresh_pending_orders_list()
+        self.refresh_pending_orders_list() #if not selected_items
 
     # atualiza os detalhes do pedido selecionado e exibe no frame de detalhes
     def refresh_order_details(self):
@@ -329,7 +329,7 @@ class PendingOrdersView(tk.Frame):
         
         if not selected_items:
             self.show_warning_popup("Aviso", "Selecione um pedido para gerenciar o estado de pagamento.")
-            
+
         else:
             selected_item = selected_items[0]
             order_details = self.orders_table.item(selected_item, "values")
@@ -354,9 +354,7 @@ class PendingOrdersView(tk.Frame):
                             self.show_warning_popup("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
                         else:
                             self.show_info_popup("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")
-                else: # como está pendente não salva uma data junto a ele
-                    self.controller.update_order(order_id, payment_status)
-                self.refresh_pending_orders_list()
+                    self.refresh_pending_orders_list()  
 
     def show_info_popup(self, title, message):
         messagebox.showinfo(title, message)
