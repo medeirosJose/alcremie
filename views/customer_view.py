@@ -222,7 +222,7 @@ class NewCustomerPopup:
         if not cpf or not name or not contact or not gender or not date_birth:
             messagebox.showerror(
                 "Erro",
-                "Todos os campos são obrigatórios",
+                "Todos os campos são de preenchimento obrigatório",
             )
             return
 
@@ -391,7 +391,7 @@ class CustomersView(tk.Frame):
                 cpf, name, contact, gender, date_birth
             )
             if repeated_cpf_msg != None:
-                messagebox.showwarning("Aviso", repeated_cpf_msg)
+                messagebox.showerror("Aviso", repeated_cpf_msg)
                 self.create_new_customer()
             else:
                 self.refresh_customers_list()
@@ -419,7 +419,7 @@ class CustomersView(tk.Frame):
                     date_birth,  # passar ainda o antigo cpf pois é a key
                 )
                 if repeated_cpf_msg != None:
-                    messagebox.showwarning("Aviso", repeated_cpf_msg)
+                    messagebox.showerror("Aviso", repeated_cpf_msg)
                     self.update_customer()
                 else:
                     self.refresh_customers_list()
@@ -433,7 +433,7 @@ class CustomersView(tk.Frame):
             customer = self.controller.get_customer(cpf_result)
             messagebox.showinfo(
                 "Cliente encontrado",
-                f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}",
+                f"    CPF: {customer.cpf}\n    Nome: {customer.name}\n    Contato: {customer.contact}\n    Gênero: {customer.gender}\n    Data de nascimento: {customer.date_birth}\n    Cartão Fidelidade: {customer.loyalty_card}",
             )
         except:
             messagebox.showwarning("Aviso", "Cliente não encontrado")
@@ -521,3 +521,6 @@ class CustomersView(tk.Frame):
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
+        
+        else:
+            messagebox.showwarning("Aviso", "Selecione um cliente para ver seus detalhes.")
