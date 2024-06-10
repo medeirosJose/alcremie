@@ -99,37 +99,27 @@ class NewProductPopup:
         )
         self.recipe_input.grid(row=5, column=1, sticky="ew", pady=5, padx=5)
 
-        # input de imagem
-
         image_label = tk.Label(input_frame)
         image_label.grid(row=7, column=1, sticky="e", padx=5)
 
-        def upload_image():
-            # Abrir o diálogo de seleção de arquivo
-            self.file_path = tkinter.filedialog.askopenfilename(title="Selecionar Imagem")
+        def render_image():
+            try:
+                # Abrir a imagem com o Pillow
+                self.image = Image.open(self.file_path)
 
-            # Verificar se um arquivo foi selecionado
-            if self.file_path:
-                try:
-                    # Abrir a imagem com o Pillow
-                    self.image = Image.open(self.file_path)
+                # Redimensionar a imagem para caber no label
+                resized_image = self.image.resize((200, 200))
 
-                    # Redimensionar a imagem para caber no label
-                    resized_image = self.image.resize((200, 200))
+                # Converter a imagem para o formato Tkinter
+                img = ImageTk.PhotoImage(resized_image)
 
-                    # Converter a imagem para o formato Tkinter
-                    img = ImageTk.PhotoImage(resized_image)
+                # Atualizar o label com a nova imagem
+                image_label.configure(image=img)
+                image_label.image = img
 
-                    # Atualizar o label com a nova imagem
-                    image_label.configure(image=img)
-                    image_label.image = img
-
-                except Exception as e:
-                    # Exibir mensagem de erro caso a imagem não possa ser aberta
-                    tk.messagebox.showerror("Erro", f"Erro ao abrir a imagem: {e}")
-
-        upload_image_button = tk.Button(input_frame, text="Selecionar Imagem", command=upload_image)
-        upload_image_button.grid(row=6, column=1, sticky="ew", padx=5)
+            except Exception as e:
+                # Exibir mensagem de erro caso a imagem não possa ser aberta
+                tk.messagebox.showerror("Erro", f"Erro ao abrir a imagem: {e}")
 
         # coloca os valores atuais dos atributos de produto em cada input
         if product:
@@ -141,6 +131,19 @@ class NewProductPopup:
             self.weight_input.insert(0, weight)
             self.recipe_input.insert("1.0", product.recipe)
             self.ingredients_input.insert(0, product.ingredients)
+            self.file_path = product.image
+            render_image()
+
+        # input de imagem
+
+        def upload_image():
+            # Abrir o diálogo de seleção de arquivo
+            self.file_path = tkinter.filedialog.askopenfilename(title="Selecionar Imagem")
+            # Verificar se um arquivo foi selecionado
+            if self.file_path:
+                render_image()
+        upload_image_button = tk.Button(input_frame, text="Selecionar Imagem", command=upload_image)
+        upload_image_button.grid(row=6, column=1, sticky="ew", padx=5)
 
         # Botões
         button_frame = tk.Frame(main_frame)
@@ -189,7 +192,7 @@ class NewProductPopup:
                 return
             weight = float(weight.replace(",", "."))
 
-        if self.image:
+        if self.file_path:
             # Definir o caminho para salvar a imagem no repositório
             repository_path = './images/'
             # Extrair o nome do arquivo e a extensão da imagem
@@ -197,7 +200,6 @@ class NewProductPopup:
 
             # Criar o nome do arquivo salvo (incluindo data e hora)
             new_filename = f"{name}_{random.randint(1,99999)}{file_extension}"
-            print(new_filename)
 
             # Salvar a imagem no repositório
             path = os.path.join(repository_path, new_filename)
@@ -318,8 +320,8 @@ class ProductView(tk.Frame):
         popup = NewProductPopup(self, self.controller)
         result = popup.show()
         if result:
-            name, price, description, weight, recipe, ingredients = result
-            self.controller.create_new_product(name, price, description, weight, recipe, ingredients)
+            name, price, description, weight, recipe, ingredients, image = result
+            self.controller.create_new_product(name, price, description, weight, recipe, ingredients, image)
             self.refresh_products_list()
 
     def edit_product(self):
@@ -337,9 +339,9 @@ class ProductView(tk.Frame):
             )  # Assuma que você ajustará o NewProductPopup para aceitar um pedido existente
             result = popup.show()
             if result:
-                name, price, description, weight, recipe, ingredients = result
+                name, price, description, weight, recipe, ingredients, image = result
                 self.controller.update_product(
-                    product_id, name, price, description, weight, recipe, ingredients
+                    product_id, name, price, description, weight, recipe, ingredients, image
                 )
                 self.refresh_products_list()
 
