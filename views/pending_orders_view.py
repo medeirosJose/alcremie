@@ -191,7 +191,7 @@ class PendingOrdersView(tk.Frame):
         selected_items = self.orders_table.selection()
 
         if not selected_items:
-            self.show_warning_popup("Aviso", "Selecione um pedido para ver seus detalhes.")
+            self.show_warning_popup("Aviso", "Selecione um pedido antes.")
         else:
             selected_item = selected_items[0]
             order_details = self.orders_table.item(selected_item, "values")
@@ -328,7 +328,7 @@ class PendingOrdersView(tk.Frame):
         selected_items = self.orders_table.selection()
         
         if not selected_items:
-            self.show_warning_popup("Aviso", "Selecione um pedido para gerenciar o estado de pagamento.")
+            self.show_warning_popup("Aviso", "Selecione um pedido antes.")
 
         else:
             selected_item = selected_items[0]
