@@ -28,6 +28,7 @@ class ProductController:
         weight: float,
         recipe: str,
         ingredients,
+        image: str
     ):
         products = self.get_products()
         if products:
@@ -42,6 +43,7 @@ class ProductController:
             weight,
             recipe,
             ingredients,
+            image,
         )
         self.__product_dao.add(new_product)
         # print(self.get_products())
@@ -50,7 +52,7 @@ class ProductController:
     def remove_product(self, id: int):
         self.__product_dao.remove(id)
 
-    def update_product(self, id, name, price, description, weight, recipe, ingredients):
+    def update_product(self, id, name, price, description, weight, recipe, ingredients, image):
         product = Product(
             id,
             name,
@@ -59,6 +61,7 @@ class ProductController:
             weight,
             recipe,
             ingredients,
+            image,
         )
         self.__product_dao.update(product)
 
