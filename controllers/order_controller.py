@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from models.order import Order
 import random
 from DAO.order_dao import OrderDAO
@@ -139,3 +141,60 @@ class OrderController:
 
     def refresh_orders_from_dao(self):
         self.orders = list(self.order_dao.get_all())
+
+    def validate_date_interval(self, initial_date, end_date):
+        initial_datetime = datetime.strptime(initial_date, "%d/%m/%Y")
+        end_datetime = datetime.strptime(end_date, "%d/%m/%Y")
+        if end_datetime >= initial_datetime:
+            return True
+        else:
+            return False
+
+    def get_products_sold_between_period(self, initial_date, end_date):
+        period_orders = self.get_orders_in_period(initial_date, end_date)
+        ordered_products = []
+        for order in period_orders:
+            ordered_products.append(order.products)
+        return ordered_products
+
+    def get_products_not_sold_between_period(self, initial_date, end_date):
+        period_orders = self.get_orders_in_period(initial_date, end_date)
+        ordered_products = []
+        for order in period_orders:
+            for order_product, quantity in order.products:
+                ordered_products.append(order_product)
+        products = self.app_controller.product_controller.get_products()
+        for product in products:
+            if any(ordered_product.name == product.name for ordered_product in ordered_products):
+                products.remove(product)
+        return products
+
+    def get_orders_in_period(self, initial_date, end_date):
+        orders = self.get_all_orders()
+        period_orders = []
+        initial_datetime = datetime.strptime(initial_date, "%d/%m/%Y")
+        end_datetime = datetime.strptime(end_date, "%d/%m/%Y")
+        # seleciona somente pedidos dentro do período
+        for order in orders:
+            order_datetime = datetime.strptime(order.delivery_date, "%d/%m/%Y")
+            if initial_datetime <= order_datetime <= end_datetime:
+                period_orders.append(order)
+        return period_orders
+
+    def calculate_period_profit(self, initial_date, end_date):
+        period_orders = self.get_orders_in_period(initial_date, end_date)
+        profit = 0
+        for order in period_orders:
+            for order_product, quantity in order.products:
+                for i in range(quantity):
+                    profit += order_product.price
+        return profit
+
+    def create_report(self, initial_date, end_date):
+        if self.get_orders_in_period(initial_date, end_date):
+            products_sold_between_period = self.get_products_sold_between_period(initial_date, end_date)
+            products_not_sold_between_period = self.get_products_not_sold_between_period(initial_date, end_date)
+            profit = self.calculate_period_profit(initial_date, end_date)
+            return products_sold_between_period, products_not_sold_between_period, profit
+        else:
+            return False

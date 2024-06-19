@@ -8,6 +8,7 @@ from views.supplier_view import SupplierView
 
 from controllers.app_controller import AppController
 from views.product_report_view import NewReportPopup
+from views.profit_report_view import  NewProfitReportPopup
 
 
 class Main(tk.Tk):
@@ -59,8 +60,8 @@ class Main(tk.Tk):
                 self.icons["product_report"],
             ),
             "Relatório Lucros": (
-                NewReportPopup,
-                self.app_controller.get_product_controller(),
+                NewProfitReportPopup,
+                self.app_controller.get_order_controller(),
                 self.icons["profit_report"],
             ),
             "Pagamentos": (
