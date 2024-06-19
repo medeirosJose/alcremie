@@ -246,7 +246,7 @@ class SupplierView(ttk.Frame):
             self.suppliers_table.delete(item)
 
         suppliers = self.controller.get_all_suppliers()
-        # print("os suppliers", suppliers)
+        # # print("os suppliers", suppliers)
 
         for supplier in suppliers:
             self.suppliers_table.insert(
@@ -275,7 +275,7 @@ class SupplierView(ttk.Frame):
                 popup = NewSupplierPopup(self, self.controller, supplier)
                 result = popup.show()
                 if result:
-                    # print("result", result)
+                    # # print("result", result)
                     company = result["company"]
                     contact = result["contact"]
                     ingredients = result["ingredients"]

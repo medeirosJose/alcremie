@@ -261,7 +261,9 @@ class ProductView(tk.Frame):
         result = popup.show()
         if result:
             name, price, description, weight, recipe, ingredients = result
-            self.controller.create_new_product(name, price, description, weight, recipe, ingredients)
+            self.controller.create_new_product(
+                name, price, description, weight, recipe, ingredients
+            )
             self.refresh_products_list()
 
     def edit_product(self):
@@ -295,7 +297,7 @@ class ProductView(tk.Frame):
         product_id = int(product_details[0])
         product_name = product_details[1]
         if messagebox.askyesno("Confirmar", "Deseja realmente remover este produto?"):
-            print(f"Removendo o produto {product_name}")
+            # print(f"Removendo o produto {product_name}")
             self.controller.remove_product(product_id)
             self.refresh_products_list()
 
@@ -364,9 +366,7 @@ class ProductView(tk.Frame):
                     text="Preço (R$):",
                     font=("Arial", 10, "bold"),
                 ).pack(side=tk.LEFT)
-                tk.Label(price_frame, text=f"{price}").pack(
-                    side=tk.LEFT, padx=5
-                )
+                tk.Label(price_frame, text=f"{price}").pack(side=tk.LEFT, padx=5)
 
                 # Descrição
                 tk.Label(
@@ -378,12 +378,10 @@ class ProductView(tk.Frame):
 
                 # Peso
                 weight = str(product.weight).replace(".", ",")
-                tk.Label(
-                    weight_frame, text="Peso:", font=("Arial", 10, "bold")
-                ).pack(side=tk.LEFT)
-                tk.Label(weight_frame, text=f"{weight}").pack(
-                    side=tk.LEFT, padx=5
+                tk.Label(weight_frame, text="Peso:", font=("Arial", 10, "bold")).pack(
+                    side=tk.LEFT
                 )
+                tk.Label(weight_frame, text=f"{weight}").pack(side=tk.LEFT, padx=5)
 
                 # Receita
                 tk.Label(
@@ -400,5 +398,3 @@ class ProductView(tk.Frame):
                 tk.Label(ingredients_frame, text=f"{product.ingredients}").pack(
                     side=tk.LEFT, padx=5
                 )
-
-

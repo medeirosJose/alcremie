@@ -5,9 +5,10 @@ from views.product_view import ProductView
 from views.customer_view import CustomersView
 from views.pending_orders_view import PendingOrdersView
 from views.supplier_view import SupplierView
+from views.menu_view import MenuView
+from views.product_report_view import NewReportPopup
 
 from controllers.app_controller import AppController
-from views.product_report_view import NewReportPopup
 
 
 class Main(tk.Tk):
@@ -52,7 +53,11 @@ class Main(tk.Tk):
                 self.app_controller.get_supplier_controller(),
                 self.icons["customers"],
             ),
-            # placeholder
+            "Cardapio": (
+                MenuView,
+                self.app_controller.get_menu_controller(),
+                self.icons["menu"],
+            ),
             "Relatório Produtos": (
                 NewReportPopup,
                 self.app_controller.get_product_controller(),
@@ -90,6 +95,9 @@ class Main(tk.Tk):
             "customers": ImageTk.PhotoImage(
                 Image.open("icons/customer2.png").resize((24, 24))
             ),
+            "menu": ImageTk.PhotoImage(
+                Image.open("icons/menu(4).png").resize((24, 24))
+            ),
             "product_report": ImageTk.PhotoImage(
                 Image.open("icons/reports2.png").resize((24, 24))
             ),
@@ -101,7 +109,6 @@ class Main(tk.Tk):
             ),
         }
 
-    # serve para carregar a logo da aplicacao acima dos botoes da sidebar
     def load_and_display_logo(self):
         logo_image = ImageTk.PhotoImage(Image.open("icons/logo.png").resize((150, 150)))
         logo_label = tk.Label(self.sidebar, image=logo_image, bg="gray")
@@ -109,7 +116,6 @@ class Main(tk.Tk):
         logo_label.pack(pady=10)
         tk.Frame(self.sidebar, height=1, bg="WHITE").pack(fill="x", padx=10, pady=10)
 
-    # funcao que cria os botoes da barra lateral e associa a visualizacao correspondente
     def create_sidebar_buttons(self):
         for view_name, (view_class, controller, icon) in self.views.items():
             button = tk.Button(
@@ -128,22 +134,16 @@ class Main(tk.Tk):
             button.pack(pady=10, padx=10, fill="x")
             self.buttons[view_name] = button
 
-    # funcao que exibe a visualizacao clicada
     def show_view(self, view_name):
         if self.current_view:
-            # se houver, destroi a visualização atual
             self.current_view[0].destroy()
 
-        # recupera a classe e o controlador da visualização selecionada
         view_class, controller, _ = self.views[view_name]
-
-        # instancia a view selecionada, passando o container e o controlador
         view = view_class(self.container, controller)
 
         view.pack(fill="both", expand=True)
         self.current_view = (view, controller)
 
-        # muda a cor do botão clicado
         for btn in self.buttons.values():
             btn.config(bg="white")
         self.buttons[view_name].config(bg="#faebd8")

@@ -14,7 +14,7 @@ class SupplierController:
             return "CNPJ já cadastrado no sistema!"
 
         new_supplier = Supplier(cnpj, company, contact, ingredients)
-        print("\n\n[!] Fornecedor criado com sucesso.")
+        # print("\n\n[!] Fornecedor criado com sucesso.")
         self.suppliers_dao.add(new_supplier)
 
     def validate_supplier_fields(self, cnpj, company, contact, ingredients):

@@ -4,6 +4,7 @@ from DAO.product_dao import ProductDAO
 import random
 from datetime import datetime
 
+
 class ProductController:
     def __init__(self, app_controller):
         self.app_controller = app_controller
@@ -43,8 +44,8 @@ class ProductController:
             ingredients,
         )
         self.__product_dao.add(new_product)
-        print(self.get_products())
-        print(f"Produto {new_id} criado com sucesso!")
+        # print(self.get_products())
+        # print(f"Produto {new_id} criado com sucesso!")
 
     def remove_product(self, id: int):
         self.__product_dao.remove(id)
@@ -111,7 +112,10 @@ class ProductController:
         products = self.get_products()
         ordered_products = self.get_products_sold_between_period(initial_date, end_date)
         for product in products:
-            if any(ordered_product.name == product.name for ordered_product in ordered_products):
+            if any(
+                ordered_product.name == product.name
+                for ordered_product in ordered_products
+            ):
                 products.remove(product)
         return products
 
@@ -161,14 +165,25 @@ class ProductController:
         return lower_price_product
 
     def create_report(self, initial_date, end_date):
-        bigger_seller, bigger_seller_quantity = self.calculate_bigger_seller(initial_date, end_date)
+        bigger_seller, bigger_seller_quantity = self.calculate_bigger_seller(
+            initial_date, end_date
+        )
         if bigger_seller:
-            minor_seller, minor_seller_quantity = self.calculate_minor_seller(initial_date, end_date)
+            minor_seller, minor_seller_quantity = self.calculate_minor_seller(
+                initial_date, end_date
+            )
             lower_price = self.calculate_lower_price()
             higher_price = self.calculate_higher_price()
             not_sold = self.get_products_not_sold(initial_date, end_date)
-            return (lower_price, higher_price, bigger_seller, bigger_seller_quantity,
-                    minor_seller, minor_seller_quantity, not_sold)
+            return (
+                lower_price,
+                higher_price,
+                bigger_seller,
+                bigger_seller_quantity,
+                minor_seller,
+                minor_seller_quantity,
+                not_sold,
+            )
         else:
             return False
 

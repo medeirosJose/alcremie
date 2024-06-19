@@ -45,12 +45,17 @@ class PaymtStatusManager(tk.Toplevel):
             row=3, column=0, columnspan=2, sticky="ew", padx=(0, 5), pady=3
         )
 
-        tk.Label(payment_frame, text="Estado de Pagamento: ").grid(row=0, column=0, sticky="w")
-        
+        tk.Label(payment_frame, text="Estado de Pagamento: ").grid(
+            row=0, column=0, sticky="w"
+        )
+
         # evita que o usuário mude de pago para pagamento pendente
         if order.payment_status != "Pago":
             radio_pending = tk.Radiobutton(
-                payment_frame, text="Pendente", variable=self.payment_var, value="Pendente"
+                payment_frame,
+                text="Pendente",
+                variable=self.payment_var,
+                value="Pendente",
             )
             radio_pending.grid(row=1, column=2, sticky="w")
 
@@ -60,7 +65,10 @@ class PaymtStatusManager(tk.Toplevel):
         radio_paid.grid(row=2, column=2, sticky="w")
 
         radio_canceled = tk.Radiobutton(
-            payment_frame, text="Cancelado", variable=self.payment_var, value="Cancelado"
+            payment_frame,
+            text="Cancelado",
+            variable=self.payment_var,
+            value="Cancelado",
         )
         radio_canceled.grid(row=3, column=2, sticky="w")
 
@@ -77,11 +85,10 @@ class PaymtStatusManager(tk.Toplevel):
         if order:
             self.payment_var.set(order.payment_status)
 
-
     def confirm(self):
         payment_status = self.payment_var.get()
-        print(type(self.payment_var))
-        print(type(self.order))
+        # print(type(self.payment_var))
+        # print(type(self.order))
 
         self.result = payment_status
         self.top.destroy()
@@ -111,7 +118,14 @@ class PendingOrdersView(tk.Frame):
         # cria a TreeView para exibir os pedidos com 4 colunas
         self.orders_table = ttk.Treeview(
             self,
-            columns=("ID", "Cliente", "Produto", "Preço", "Pagamento", "Data de Entrega"),
+            columns=(
+                "ID",
+                "Cliente",
+                "Produto",
+                "Preço",
+                "Pagamento",
+                "Data de Entrega",
+            ),
             show="headings",
         )
 
@@ -136,18 +150,22 @@ class PendingOrdersView(tk.Frame):
 
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(pady=10, padx=10, fill=tk.X, side=tk.TOP)
-        print(type(tk.X))
-        print(type(tk.TOP))
+        # print(type(tk.X))
+        # print(type(tk.TOP))
 
         # botão para ver detalhes do pedido
         self.view_details_button = tk.Button(
-            buttons_frame, text="Ver Detalhes do Pedido", command=self.refresh_order_details,
+            buttons_frame,
+            text="Ver Detalhes do Pedido",
+            command=self.refresh_order_details,
         )
         self.view_details_button.pack(side=tk.LEFT, padx=5)
 
         # botão para alterar entre os três estados de pagamento
         self.create_order_button = tk.Button(
-            buttons_frame, text="Gerenciar Estado de Pagamento", command=self.manage_paymt_status
+            buttons_frame,
+            text="Gerenciar Estado de Pagamento",
+            command=self.manage_paymt_status,
         )
         self.create_order_button.pack(side=tk.LEFT, padx=5)
 
@@ -178,7 +196,7 @@ class PendingOrdersView(tk.Frame):
         self.details_canvas.pack(side="left", fill="both", expand=True)
         self.details_scrollbar.pack(side="right", fill="y")
 
-        self.refresh_pending_orders_list() #if not selected_items
+        self.refresh_pending_orders_list()  # if not selected_items
 
     # atualiza os detalhes do pedido selecionado e exibe no frame de detalhes
     def refresh_order_details(self):
@@ -258,9 +276,10 @@ class PendingOrdersView(tk.Frame):
                         text="Status de Pagamento:",
                         font=("Arial", 10, "bold"),
                     ).pack(side=tk.LEFT, padx=padx_value)
-                    tk.Label(payment_frame, text=order.payment_status+', '+payment_date_str).pack(
-                        side=tk.LEFT, padx=padx_value
-                )
+                    tk.Label(
+                        payment_frame,
+                        text=order.payment_status + ", " + payment_date_str,
+                    ).pack(side=tk.LEFT, padx=padx_value)
 
                 tk.Label(
                     total_price_frame, text="Preço Total:", font=("Arial", 10, "bold")
@@ -326,7 +345,7 @@ class PendingOrdersView(tk.Frame):
     # abre o pop up para o gerenciamento do estado de pagamento do pedido
     def manage_paymt_status(self):
         selected_items = self.orders_table.selection()
-        
+
         if not selected_items:
             self.show_warning_popup("Aviso", "Selecione um pedido antes.")
 
@@ -340,21 +359,33 @@ class PendingOrdersView(tk.Frame):
             if order:
                 popup = PaymtStatusManager(self, order)
                 payment_status = popup.show()
-                if payment_status == None: # no caso de apertar o botão cancelar
+                if payment_status == None:  # no caso de apertar o botão cancelar
                     return
-                #RN02 - Se o pedido for cancelado com menos de dois dias de antecedência o sinal não é devolvido
-                # para cumprir esse requisito salvamos o dia em que esse ajuste no estado de pagamento é feito 
+                # RN02 - Se o pedido for cancelado com menos de dois dias de antecedência o sinal não é devolvido
+                # para cumprir esse requisito salvamos o dia em que esse ajuste no estado de pagamento é feito
                 # para posterior uso no relatório de lucros
-                if payment_status != "Pendente": # Aqui salva a data de pagamento/ cancelamento no pedido
-                    self.controller.update_order(order_id, payment_status, datetime.now().date())
+                if (
+                    payment_status != "Pendente"
+                ):  # Aqui salva a data de pagamento/ cancelamento no pedido
+                    self.controller.update_order(
+                        order_id, payment_status, datetime.now().date()
+                    )
 
-                    delivery_date = datetime.strptime(order.delivery_date, "%d/%m/%Y").date()
+                    delivery_date = datetime.strptime(
+                        order.delivery_date, "%d/%m/%Y"
+                    ).date()
                     if payment_status == "Cancelado" and order.total_order_price > 150:
-                        if (delivery_date - datetime.now().date() >= timedelta(days=2)):
-                            self.show_warning_popup("Aviso", f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.")
+                        if delivery_date - datetime.now().date() >= timedelta(days=2):
+                            self.show_warning_popup(
+                                "Aviso",
+                                f"Devolva o sinal de R${order.total_order_price*35/100} ao cliente.",
+                            )
                         else:
-                            self.show_info_popup("Aviso", "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência")
-                    self.refresh_pending_orders_list()  
+                            self.show_info_popup(
+                                "Aviso",
+                                "Sinal não deve ser devolvido pois o pedido foi cancelado com menos de dois dias de antecedência",
+                            )
+                    self.refresh_pending_orders_list()
 
     def show_info_popup(self, title, message):
         messagebox.showinfo(title, message)
