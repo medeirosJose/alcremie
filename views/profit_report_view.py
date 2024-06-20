@@ -1,3 +1,4 @@
+import sys
 import tkinter as tk
 from tkinter import messagebox, ttk
 from tkcalendar import DateEntry
@@ -5,12 +6,14 @@ from datetime import datetime
 
 
 class NewProfitReportPopup(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, initial_date=None, end_date=None):
         super().__init__(parent)
         self.top = tk.Toplevel(parent)
         self.top.title("Novo relatório de lucros")
         self.controller = controller
         self.main_frame = None
+        self.initial_date = initial_date.strftime("%d/%m/%Y")
+        self.end_date = end_date.strftime("%d/%m/%Y")
 
         parent_width = parent.winfo_screenwidth()
         parent_height = parent.winfo_screenheight()
@@ -31,6 +34,8 @@ class NewProfitReportPopup(tk.Frame):
         style = ttk.Style()
         style.configure("Bold.TLabel", font=("TkDefaultFont", 10, "bold"))
 
+
+
         # Frame principal para padding
         self.main_frame = tk.Frame(self.top, padx=10, pady=10)
         self.main_frame.pack(expand=True, fill=tk.BOTH)
@@ -40,9 +45,14 @@ class NewProfitReportPopup(tk.Frame):
         input_frame.grid(row=1, column=0, sticky="ew")
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
+        if self.initial_date and self.end_date:
+            self.create_new_report()
+
         ttk.Label(self.main_frame, text="Selecione o período para gerar o relatório: ", style="TLabel").grid(
             row=0, column=0, padx=10, pady=10
         )
+
+
 
         #data de início do período que a pessoa quer gerr o relatório
         ttk.Label(input_frame, text="Data de início: ", style="TLabel").grid(
@@ -140,27 +150,39 @@ class NewProfitReportPopup(tk.Frame):
         btn_confirm.pack(side=tk.RIGHT, padx=(5, 0))
 
     def create_new_report(self):
-        initial_date = self.initial_date_entry.get()
-        end_date = self.end_date_entry.get()
-        is_interval_valid = self.controller.validate_date_interval(initial_date, end_date)
-        if not is_interval_valid:
-            messagebox.showerror(
-                "Erro",
-                "O campo de fim deve ser maior ou igual ao campo de início",
-            )
-            self.top.lift()
-            return
-        values = self.controller.create_report(initial_date, end_date)
+        if not self.initial_date and not self.end_date:
+            self.initial_date = self.initial_date_entry.get()
+            self.end_date = self.end_date_entry.get()
+            is_interval_valid = self.controller.validate_date_interval(self.initial_date, self.end_date)
+            if not is_interval_valid:
+                messagebox.showerror(
+                    "Erro",
+                    "O campo de fim deve ser maior ou igual ao campo de início",
+                )
+                self.top.lift()
+                return
+            values = self.controller.create_report(self.initial_date, self.end_date)
 
-        if values:
-            self.show_report(values, initial_date, end_date)
+            if values:
+                self.show_report(values, self.initial_date, self.end_date)
+            else:
+                messagebox.showerror(
+                    "Erro",
+                    "Nenhum produto foi vendido nesse período",
+                )
+                self.top.lift()
+                return
         else:
-            messagebox.showerror(
-                "Erro",
-                "Nenhum produto foi vendido nesse período",
-            )
-            self.top.lift()
-            return
+            values = self.controller.create_report(self.initial_date, self.end_date)
+
+            if values:
+                self.show_report(values, self.initial_date, self.end_date)
+            else:
+                messagebox.showinfo(
+                    "Relatório de lucros",
+                    "Nenhum produto foi vendido hoje",
+                )
+                sys.exit()
 
     def confirm(self):
         self.top.destroy()
