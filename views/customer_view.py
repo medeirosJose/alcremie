@@ -447,7 +447,7 @@ class CustomersView(tk.Frame):
         customer_details = self.customers_table.item(selected_item, "values")
         cpf = customer_details[0]
         if messagebox.askyesno("Confirmar", "Deseja realmente excluir este cliente?"):
-            print(f"Removendo cliente de CPF: {cpf}")
+            # print(f"Removendo cliente de CPF: {cpf}")
             self.controller.remove_customer(cpf)
             self.refresh_customers_list()
 
@@ -521,6 +521,8 @@ class CustomersView(tk.Frame):
                 tk.Label(loyalty_card, text=f"{customer.loyalty_card} pedido(s)").pack(
                     side=tk.LEFT, padx=5
                 )
-        
+
         else:
-            messagebox.showwarning("Aviso", "Selecione um cliente para ver seus detalhes.")
+            messagebox.showwarning(
+                "Aviso", "Selecione um cliente para ver seus detalhes."
+            )

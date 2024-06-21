@@ -8,6 +8,7 @@ class Product:
         weight: float,
         recipe: str,
         ingredients: str,
+        image: str
     ):
         self.__id = id
         self.__name = name
@@ -16,6 +17,7 @@ class Product:
         self.__weight = weight
         self.__recipe = recipe
         self.__ingredients = ingredients
+        self.__image = image
 
     @property
     def id(self):
@@ -72,3 +74,11 @@ class Product:
     @ingredients.setter
     def ingredients(self, ingredients: str):
         self.__ingredients = ingredients
+
+    @property
+    def image(self):
+        return self.__image
+
+    @image.setter
+    def image(self, image: str):
+        self.__image = image

@@ -12,7 +12,7 @@ class SupplierDAO(DAO):
             and isinstance(supplier, Supplier)
             and isinstance(supplier.cnpj, str)
         ):
-            print("salvou...", supplier)
+            # print("salvou...", supplier)
             super().add(supplier.cnpj, supplier)
 
     def update(self, supplier: Supplier):
@@ -28,6 +28,6 @@ class SupplierDAO(DAO):
             return super().get(key)
 
     def remove(self, key: str):
-        print("removendo...", key)
+        # print("removendo...", key)
         if isinstance(key, str):
             return super().remove(key)

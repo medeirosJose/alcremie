@@ -185,7 +185,7 @@ class NewOrderPopup(tk.Toplevel):
         self.products_listbox.delete(0, tk.END)
         for product in matching_products:
             self.products_listbox.insert(tk.END, product.name)
-            print(product.price)
+            # print(product.price)
 
     # carrega a lista de produtos do controller
     def load_products(self):
@@ -255,7 +255,9 @@ class NewOrderPopup(tk.Toplevel):
                 )
                 return
 
-            total_price, descountApplied = self.controller.calculate_total(self.order_items, selected_customer)
+            total_price, descountApplied = self.controller.calculate_total(
+                self.order_items, selected_customer
+            )
             total_price, message = self.controller.check_order_requirements(total_price)
 
             # RN X - Avisa ao usuário que há um sinal necessário no pedido
@@ -385,7 +387,7 @@ class OrderView(tk.Frame):
             delivery_date = result["delivery_date"]
             order_items = result["order_items"]
             observation = result["observation"]
-            #  print("1")
+            #  # print("1")
             descountApplied = self.controller.create_new_order(
                 client,
                 order_items,
@@ -473,9 +475,10 @@ class OrderView(tk.Frame):
                         text="Status de Pagamento:",
                         font=("Arial", 10, "bold"),
                     ).pack(side=tk.LEFT, padx=padx_value)
-                    tk.Label(payment_frame, text=order.payment_status+', '+payment_date_str).pack(
-                        side=tk.LEFT, padx=padx_value
-                )
+                    tk.Label(
+                        payment_frame,
+                        text=order.payment_status + ", " + payment_date_str,
+                    ).pack(side=tk.LEFT, padx=padx_value)
 
                 tk.Label(
                     total_price_frame, text="Preço Total:", font=("Arial", 10, "bold")
@@ -528,7 +531,7 @@ class OrderView(tk.Frame):
 
         # pede confirmação antes de remover, RNF
         if messagebox.askyesno("Confirmar", "Deseja realmente remover este pedido?"):
-            print(f"VIEW - Removendo pedido {order_id}")
+            # print(f"VIEW - Removendo pedido {order_id}")
             self.controller.remove_order(order_id)
             self.refresh_orders_list()
 
