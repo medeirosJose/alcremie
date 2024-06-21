@@ -32,7 +32,7 @@ class AskCpf:
         input_frame.columnconfigure(1, weight=1)  # Faz a segunda coluna expandir
 
         # Input CPF
-        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente:")
+        entry_label_cpf = tk.Label(input_frame, text="CPF do Cliente: *")
         entry_label_cpf.grid(row=0, column=0, sticky="w", padx=(0, 5))
 
         self.entry_cpf = tk.Entry(input_frame, width=30)

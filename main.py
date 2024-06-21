@@ -5,6 +5,8 @@ from views.product_view import ProductView
 from views.customer_view import CustomersView
 from views.pending_orders_view import PendingOrdersView
 from views.supplier_view import SupplierView
+from views.price_simulator_view import PriceSimulatorPopup
+
 
 from controllers.app_controller import AppController
 from views.product_report_view import NewReportPopup
@@ -66,7 +68,12 @@ class Main(tk.Tk):
             "Pagamentos": (
                 PendingOrdersView,
                 self.app_controller.get_pending_orders_controller(),
-                self.icons["settings"],
+                self.icons["money"],
+            ),
+            "Simulador de Preço": (
+                PriceSimulatorPopup,
+                self.app_controller.get_product_controller(),
+                self.icons["money"],
             ),
             "Sair": (
                 OrderView,
@@ -96,7 +103,7 @@ class Main(tk.Tk):
             "profit_report": ImageTk.PhotoImage(
                 Image.open("icons/reports2.png").resize((24, 24))
             ),
-            "settings": ImageTk.PhotoImage(
+            "money": ImageTk.PhotoImage(
                 Image.open("icons/payment.png").resize((24, 24))
             ),
         }
