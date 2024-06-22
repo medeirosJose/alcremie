@@ -49,9 +49,8 @@ class CustomerController:
         if (isinstance(customer, Customer)) == True:
             self.__customers.remove(cpf)
 
-    def change_loyalty_card(self, customer):
-        if customer.loyalty_card < 3:
-            customer.loyalty_card += 1
-        else:  # Caso já possua três pedidos e esteja fazendo o pedido com desconto seu cartão volta a ficar zerado
-            customer.loyalty_card = 0
-        self.__customers.update(customer)
+    def change_loyalty_card(self, customer, order_id):
+        if order_id not in customer.loyalty_card:
+            customer.add_loyalty_card(order_id)
+            
+            self.__customers.update(customer)

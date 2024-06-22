@@ -6,7 +6,6 @@ class PendingOrdersController:
     def __init__(self, app_controller):
         self.app_controller = app_controller
         self.pending_orders = []
-        self.order_in_loyalty_card = []
         self.order_dao = OrderDAO()
         self.load_pending_orders()
 
@@ -29,12 +28,8 @@ class PendingOrdersController:
 
                     # para atender a RN06 - Após 3 pedidos com um valor mínimo de 75 reais realizados por um
                     # mesmo cliente, no próxmo pedido é aplicado um desconto
-                    if (order.total_order_price >= 75) and (order.order_id not in self.order_in_loyalty_card):
-                        # Salva os pedidos já contabilizados para que ao atualizar a lista de pedidos não 
-                        # seja adicionado várias vezes o mesmo
-                        self.order_in_loyalty_card.append(order.order_id)
-                        self.app_controller.customer_controller.change_loyalty_card(order.customer)
-                        print(order.customer.loyalty_card)
+                    if (order.total_order_price >= 75):
+                        self.app_controller.customer_controller.change_loyalty_card(order.customer, order.order_id)
 
                 # Adiciona apenas aqueles que ainda faltam ser entregues e não foram cancelados
                 elif delivery_date >= datetime.now().date(): 
