@@ -56,7 +56,6 @@ class Customer:
     def loyalty_card(self):
         return self.__loyalty_card
 
-    @loyalty_card.setter
-    def loyalty_card(self, loyalty_card: int):
-        if isinstance(loyalty_card, int):
-            self.__loyalty_card = loyalty_card
+    def add_loyalty_card(self, order_id: int):
+        if isinstance(order_id, int):
+            self.__loyalty_card.append(order_id)
