@@ -87,11 +87,10 @@ class OrderController:
 
         # testa se ele completou seu cartão de fidelidade e pode receber desconto (RN06)
         descountApplied = None
-        if len(customer.loyalty_card) > 0: # evita erro de divisão do zero
-            if len(customer.loyalty_card) % 3 == 0:
-                total_price *= 85/100
-                descountApplied = "Desconto do cartão fidelidade aplicado"
-        print(f"Total price: {total_price}")
+        if customer.loyalty_card == 3:
+            total_price *= 85/100
+            descountApplied = "Desconto do cartão fidelidade aplicado"
+        # print(f"Total price: {total_price}")
         return total_price, descountApplied
 
     # remove um pedido do DAO com base no ID unico
