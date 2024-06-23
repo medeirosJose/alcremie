@@ -87,11 +87,6 @@ class PaymtStatusManager(tk.Toplevel):
 
     def confirm(self):
         payment_status = self.payment_var.get()
-<<<<<<< HEAD
-=======
-        # print(type(self.payment_var))
-        # print(type(self.order))
->>>>>>> 6c0e37674bea0e02679d06409ccbfce6ca27ac8a
 
         self.result = payment_status
         self.top.destroy()
@@ -153,11 +148,6 @@ class PendingOrdersView(tk.Frame):
 
         buttons_frame = tk.Frame(self)
         buttons_frame.pack(pady=10, padx=10, fill=tk.X, side=tk.TOP)
-<<<<<<< HEAD
-=======
-        # print(type(tk.X))
-        # print(type(tk.TOP))
->>>>>>> 6c0e37674bea0e02679d06409ccbfce6ca27ac8a
 
         # botão para ver detalhes do pedido
         self.view_details_button = tk.Button(
