@@ -1,4 +1,6 @@
 import tkinter as tk
+from datetime import datetime
+
 from PIL import Image, ImageTk
 from views.order_view import OrderView
 from views.product_view import ProductView
@@ -11,6 +13,8 @@ from views.menu_view import MenuView
 from views.product_report_view import NewReportPopup
 
 from controllers.app_controller import AppController
+from views.product_report_view import NewReportPopup
+from views.profit_report_view import NewProfitReportPopup
 
 
 class Main(tk.Tk):
@@ -66,8 +70,8 @@ class Main(tk.Tk):
                 self.icons["product_report"],
             ),
             "Relatório Lucros": (
-                NewReportPopup,
-                self.app_controller.get_product_controller(),
+                NewProfitReportPopup,
+                self.app_controller.get_order_controller(),
                 self.icons["profit_report"],
             ),
             "Pagamentos": (
@@ -81,7 +85,7 @@ class Main(tk.Tk):
                 self.icons["money"],
             ),
             "Sair": (
-                OrderView,
+                NewProfitReportPopup,
                 self.app_controller.get_order_controller(),
                 self.icons["order"],
             ),
@@ -146,7 +150,11 @@ class Main(tk.Tk):
             self.current_view[0].destroy()
 
         view_class, controller, _ = self.views[view_name]
-        view = view_class(self.container, controller)
+        if view_name == "Sair":
+            view = view_class(self.container, controller, datetime.now(), datetime.now())
+        else:
+        # instancia a view selecionada, passando o container e o controlador
+            view = view_class(self.container, controller)
 
         view.pack(fill="both", expand=True)
         self.current_view = (view, controller)
