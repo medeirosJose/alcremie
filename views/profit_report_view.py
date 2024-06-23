@@ -18,14 +18,14 @@ class NewProfitReportPopup(tk.Frame):
         parent_width = parent.winfo_screenwidth()
         parent_height = parent.winfo_screenheight()
         window_width = 500
-        window_height = 500
+        window_height = 600
 
         position_x = int(parent_width / 2 - window_width / 2)
         position_y = int(parent_height / 2 - window_height / 2)
 
         self.top.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
-        self.top.geometry("500x500")  # Tamanho menor para ficar mais proporcional
+        self.top.geometry("500x600")  # Tamanho menor para ficar mais proporcional
         self.top.resizable(False, False)  # Desabilita o redimensionamento
 
         self.root = tk.Frame(self.top, padx=10, pady=10)

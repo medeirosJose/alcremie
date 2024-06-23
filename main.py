@@ -121,7 +121,7 @@ class Main(tk.Tk):
         }
 
     def load_and_display_logo(self):
-        logo_image = ImageTk.PhotoImage(Image.open("icons/logo.png").resize((150, 150)))
+        logo_image = ImageTk.PhotoImage(Image.open("icons/logo.png").resize((90, 90)))
         logo_label = tk.Label(self.sidebar, image=logo_image, bg="gray")
         logo_label.image = logo_image
         logo_label.pack(pady=10)
@@ -139,7 +139,7 @@ class Main(tk.Tk):
                 relief="flat",
                 anchor="w",
                 width=150,
-                height=30,
+                height=25,
                 padx=20,
             )
             button.pack(pady=10, padx=10, fill="x")
