@@ -33,7 +33,7 @@ class NewSupplierPopup:
         input_frame.columnconfigure(1, weight=1)
 
         # CNPJ
-        cnpj_label = tk.Label(input_frame, text="CNPJ:")
+        cnpj_label = tk.Label(input_frame, text="CNPJ:*")
         cnpj_label.grid(row=0, column=0, sticky="w", padx=(0, 5), pady=3)
 
         self.cnpj_entry = tk.Entry(input_frame, width=30)
@@ -41,19 +41,19 @@ class NewSupplierPopup:
         self.cnpj_entry.bind("<KeyRelease>", self.format_cnpj_entry)
 
         # Company
-        company_label = tk.Label(input_frame, text="Empresa:")
+        company_label = tk.Label(input_frame, text="Empresa:*")
         company_label.grid(row=1, column=0, sticky="w", pady=5)
         self.company_entry = tk.Entry(input_frame)
         self.company_entry.grid(row=1, column=1, sticky="ew", pady=5)
 
         # Contact
-        contact_label = tk.Label(input_frame, text="Contato:")
+        contact_label = tk.Label(input_frame, text="Contato:*")
         contact_label.grid(row=2, column=0, sticky="w", pady=5)
         self.contact_entry = tk.Entry(input_frame)
         self.contact_entry.grid(row=2, column=1, sticky="ew", pady=5)
 
         # Ingredients
-        ingredients_label = tk.Label(input_frame, text="Insumo:")
+        ingredients_label = tk.Label(input_frame, text="Insumo:*")
         ingredients_label.grid(row=3, column=0, sticky="w", pady=5)
         self.ingredients_entry = tk.Entry(input_frame)
         self.ingredients_entry.grid(row=3, column=1, sticky="ew", pady=5)
@@ -299,6 +299,7 @@ class SupplierView(ttk.Frame):
             supplier_details = self.suppliers_table.item(selected_supplier, "values")
             supplier_cpnj = supplier_details[0]
 
+        if messagebox.askyesno("Confirmar", "Deseja realmente remover o fornecedor?"):
             self.controller.remove_supplier(supplier_cpnj)
             self.refresh_supplier_table()
 
@@ -337,21 +338,21 @@ class SupplierView(ttk.Frame):
         tk.Label(cnpj_frame, text=supplier.cnpj).pack(side=tk.LEFT)
 
         # Company
-        tk.Label(company_frame, text="Company:", font=("Arial", 10, "bold")).pack(
+        tk.Label(company_frame, text="Empresa:", font=("Arial", 10, "bold")).pack(
             side=tk.LEFT
         )
         tk.Label(company_frame, text=supplier.company).pack(side=tk.LEFT)
 
         # Contact
-        tk.Label(contact_frame, text="Contact:", font=("Arial", 10, "bold")).pack(
+        tk.Label(contact_frame, text="Contato:", font=("Arial", 10, "bold")).pack(
             side=tk.LEFT
         )
         tk.Label(contact_frame, text=supplier.contact).pack(side=tk.LEFT)
 
         # Ingredients
-        tk.Label(
-            ingredients_frame, text="Ingredients:", font=("Arial", 10, "bold")
-        ).pack(side=tk.LEFT)
+        tk.Label(ingredients_frame, text="Insumos:", font=("Arial", 10, "bold")).pack(
+            side=tk.LEFT
+        )
         tk.Label(ingredients_frame, text=supplier.ingredients).pack(side=tk.LEFT)
 
     def open_create_supplier_popup(self):
@@ -370,6 +371,6 @@ class SupplierView(ttk.Frame):
                     messagebox.showwarning("Aviso", msg)
                 else:
                     self.refresh_supplier_table()
-                    break  # Se a criação for bem sucedida, saia do loop
+                    break
             else:
-                break  # Se o usuário cancelar, saia do loop
+                break

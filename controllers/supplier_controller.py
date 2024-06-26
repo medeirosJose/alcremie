@@ -30,7 +30,7 @@ class SupplierController:
         supplier.contact = contact
         supplier.ingredients = ingredients
 
-        if cnpj != new_cnpj:  # Only check for duplicate CNPJ if it's changed
+        if cnpj != new_cnpj: 
             if self.get_supplier(new_cnpj):
                 return "CNPJ já cadastrado no sistema!"
             else:
