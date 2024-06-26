@@ -57,10 +57,10 @@ class OrderController:
             total_order_price=order_price,
         )
 
-        if new_order.total_order_price > 150:
-            new_order.total_order_price, new_order.observation = (
-                self.check_order_requirements(new_order.total_order_price, observation)
-            )
+        # if new_order.total_order_price > 150:
+        #     new_order.total_order_price, new_order.observation = (
+        #         self.check_order_requirements(new_order.total_order_price, observation)
+        #     )
 
         self.order_dao.add(new_order)
         self.load_orders()
@@ -71,13 +71,20 @@ class OrderController:
 
     #!TODO atualizar depois quando tiver o crud de produtos
     def check_order_requirements(self, total_price, observation=None):
-        # print(f"Total price no check_order_requirements: {total_price}")
+        print(
+            "entrie no check order - total_price:",
+            total_price,
+            "observation:",
+            observation,
+        )
         if total_price > 150 and observation:
+            print("entrei no if")
             return (
                 total_price,
                 f"Pedido com valor de R${total_price}. Sinal necessário! {observation}",
             )
-        elif total_price > 150:
+        elif total_price > 150 and not observation:
+            print("entrei no elif")
             return (
                 total_price,
                 f"Pedido com valor de R${total_price}. Sinal necessário!",
@@ -92,7 +99,7 @@ class OrderController:
         # testa se ele completou seu cartão de fidelidade e pode receber desconto (RN06)
         descountApplied = None
         if customer.loyalty_card == 3:
-            total_price *= 85/100
+            total_price *= 85 / 100
             descountApplied = "Desconto do cartão fidelidade aplicado"
         print(f"Total price: {total_price}")
         return total_price, descountApplied
@@ -121,12 +128,12 @@ class OrderController:
             order.observation = observation
             order.total_order_price, x = self.calculate_total(products, customer)
 
-            if order.total_order_price > 150:
-                order.total_order_price, order.observation = (
-                    self.check_order_requirements(
-                        order.total_order_price, order.observation
-                    )
-                )
+            # if order.total_order_price > 150:
+            #     order.total_order_price, order.observation = (
+            #         self.check_order_requirements(
+            #             order.total_order_price, order.observation
+            #         )
+            #     )
             self.order_dao.update(order)
             self.load_orders()
             # print(f"Pedido com ID {order_id} atualizado com sucesso!")
@@ -167,7 +174,10 @@ class OrderController:
                 ordered_products.append(order_product)
         products = self.app_controller.product_controller.get_products()
         for product in products:
-            if any(ordered_product.name == product.name for ordered_product in ordered_products):
+            if any(
+                ordered_product.name == product.name
+                for ordered_product in ordered_products
+            ):
                 products.remove(product)
         return products
 
@@ -194,9 +204,17 @@ class OrderController:
 
     def create_report(self, initial_date, end_date):
         if self.get_orders_in_period(initial_date, end_date):
-            products_sold_between_period = self.get_products_sold_between_period(initial_date, end_date)
-            products_not_sold_between_period = self.get_products_not_sold_between_period(initial_date, end_date)
+            products_sold_between_period = self.get_products_sold_between_period(
+                initial_date, end_date
+            )
+            products_not_sold_between_period = (
+                self.get_products_not_sold_between_period(initial_date, end_date)
+            )
             profit = self.calculate_period_profit(initial_date, end_date)
-            return products_sold_between_period, products_not_sold_between_period, profit
+            return (
+                products_sold_between_period,
+                products_not_sold_between_period,
+                profit,
+            )
         else:
             return False

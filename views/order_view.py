@@ -258,20 +258,34 @@ class NewOrderPopup(tk.Toplevel):
             total_price, descountApplied = self.controller.calculate_total(
                 self.order_items, selected_customer
             )
+
             total_price, message = self.controller.check_order_requirements(total_price)
 
             # RN X - Avisa ao usuário que há um sinal necessário no pedido
+            # print("message: ", message)
             if message:
                 response = messagebox.showinfo("Aviso", message)
                 if not response:
                     return
+            else:
+                message = ""
+                
+            user_observation = self.obs_entry.get("1.0", tk.END).strip().split(" | ")
+
+            print(len(user_observation))
+            if len(user_observation) > 1:
+                user_observation = user_observation[1]
+            else:
+                user_observation = user_observation[0]
 
             self.result = {
                 "client": selected_customer,  # Armazena a instância do cliente
                 "delivery_date": formatted_date,
                 "order_items": self.order_items,  # Lista de tuplas (Product, quantity)
                 "total_price": total_price,
-                "observation": self.obs_entry.get("1.0", "end-1c"),
+                "observation": message
+                + " | "
+                + user_observation,  # Observação do pedido
             }
             self.destroy()
         else:
@@ -548,6 +562,7 @@ class OrderView(tk.Frame):
         order = self.controller.get_order_details(order_id)
         popup = NewOrderPopup(self, self.controller, order)
         result = popup.show()
+        print("\n\nRESULTADO: ", result)
         if result:
             client = result["client"]
             delivery_date = result["delivery_date"]
